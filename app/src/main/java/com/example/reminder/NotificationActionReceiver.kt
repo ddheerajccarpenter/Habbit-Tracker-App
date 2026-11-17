@@ -24,44 +24,41 @@ class NotificationActionReceiver : BroadcastReceiver() {
     }
 
     val app = context.applicationContext as? HabitTaskApplication ?: return
+    val pendingResult = goAsync()
     val scope = CoroutineScope(Dispatchers.IO)
 
-    when (action) {
-      ACTION_MARK_TASK_COMPLETE -> {
-        val taskId = intent.getStringExtra("EXTRA_TASK_ID") ?: return
-        scope.launch {
-          try {
+    scope.launch {
+      try {
+        when (action) {
+          ACTION_MARK_TASK_COMPLETE -> {
+            val taskId = intent.getStringExtra("EXTRA_TASK_ID") ?: return@launch
             app.taskRepository.toggleTaskCompletion(taskId)
-          } catch (e: Exception) {
-            Log.e(TAG, "Error marking task complete from notification", e)
           }
-        }
-      }
 
-      ACTION_SNOOZE_TASK -> {
-        val taskId = intent.getStringExtra("EXTRA_TASK_ID") ?: return
-        val taskTitle = intent.getStringExtra("EXTRA_TASK_TITLE") ?: "Task"
-        val snoozeMinutes = intent.getIntExtra("EXTRA_SNOOZE_MINUTES", 10)
-        ReminderScheduler.snoozeTask(context, taskId, taskTitle, snoozeMinutes)
-      }
+          ACTION_SNOOZE_TASK -> {
+            val taskId = intent.getStringExtra("EXTRA_TASK_ID") ?: return@launch
+            val taskTitle = intent.getStringExtra("EXTRA_TASK_TITLE") ?: "Task"
+            val snoozeMinutes = intent.getIntExtra("EXTRA_SNOOZE_MINUTES", 10)
+            ReminderScheduler.snoozeTask(context, taskId, taskTitle, snoozeMinutes)
+          }
 
-      ACTION_MARK_HABIT_DONE -> {
-        val habitId = intent.getStringExtra("EXTRA_HABIT_ID") ?: return
-        scope.launch {
-          try {
+          ACTION_MARK_HABIT_DONE -> {
+            val habitId = intent.getStringExtra("EXTRA_HABIT_ID") ?: return@launch
             val todayStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             app.habitRepository.recordHabitProgress(habitId, todayStr, 1f)
-          } catch (e: Exception) {
-            Log.e(TAG, "Error marking habit done from notification", e)
+          }
+
+          ACTION_SNOOZE_HABIT -> {
+            val habitId = intent.getStringExtra("EXTRA_HABIT_ID") ?: return@launch
+            val habitName = intent.getStringExtra("EXTRA_HABIT_NAME") ?: "Habit"
+            val snoozeMinutes = intent.getIntExtra("EXTRA_SNOOZE_MINUTES", 15)
+            ReminderScheduler.snoozeHabit(context, habitId, habitName, snoozeMinutes)
           }
         }
-      }
-
-      ACTION_SNOOZE_HABIT -> {
-        val habitId = intent.getStringExtra("EXTRA_HABIT_ID") ?: return
-        val habitName = intent.getStringExtra("EXTRA_HABIT_NAME") ?: "Habit"
-        val snoozeMinutes = intent.getIntExtra("EXTRA_SNOOZE_MINUTES", 15)
-        ReminderScheduler.snoozeHabit(context, habitId, habitName, snoozeMinutes)
+      } catch (e: Exception) {
+        Log.e(TAG, "Error executing notification action $action", e)
+      } finally {
+        pendingResult.finish()
       }
     }
   }

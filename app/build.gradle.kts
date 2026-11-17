@@ -185,7 +185,7 @@ dependencies {
 tasks.register("syncReleaseApk") {
   group = "build"
   description = "Deletes older APKs and copies the release APK as TDLxHT.<version>.apk and TDlxHT.apk to root, web, and dist directories."
-  dependsOn("assembleRelease", "bundleRelease")
+  dependsOn("assembleRelease")
   notCompatibleWithConfigurationCache("Performs file tree scan and multi-directory synchronization")
   doLast {
     val ver = android.defaultConfig.versionName ?: "2.3.3"

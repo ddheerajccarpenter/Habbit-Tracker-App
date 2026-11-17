@@ -33,15 +33,14 @@ class BootReceiver : BroadcastReceiver() {
       }
     }
 
-    if (action == Intent.ACTION_MY_PACKAGE_REPLACED) {
-      Log.d(TAG, "Package replaced/updated. Triggering storage cleanup for downloaded APK installer...")
-      CoroutineScope(Dispatchers.IO).launch {
-        com.example.util.ApkDownloadManager.cleanupDownloadedApks(context)
-      }
-    }
-
+    val pendingResult = goAsync()
     CoroutineScope(Dispatchers.IO).launch {
       try {
+        if (action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+          Log.d(TAG, "Package replaced/updated. Triggering storage cleanup for downloaded APK installer...")
+          com.example.util.ApkDownloadManager.cleanupDownloadedApks(context)
+        }
+
         val settings = app.database.settingsDao().getSettingsSync()?.toDomainModel()
           ?: com.example.data.model.AppSettings()
 
@@ -58,7 +57,6 @@ class BootReceiver : BroadcastReceiver() {
         // Reschedule Task Reminders
         if (settings.taskRemindersEnabled) {
           val tasks = app.database.taskDao().getAllTasksSync()
-          val today = LocalDate.now()
           tasks.forEach { entity ->
             val task = entity.toDomainModel()
             if (!task.isCompleted && task.reminderSetting != ReminderOption.NONE) {
@@ -91,6 +89,8 @@ class BootReceiver : BroadcastReceiver() {
         }
       } catch (e: Exception) {
         Log.e(TAG, "Error rescheduling reminders on boot", e)
+      } finally {
+        pendingResult.finish()
       }
     }
   }

@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import com.example.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -1403,13 +1404,19 @@ fun TaskGridCard(
           if (onDelete != null) {
             Box(
               modifier = Modifier
-                .size(24.dp)
-                .background(AccentTerracotta.copy(alpha = 0.15f), CircleShape)
-                .clip(CircleShape)
+                .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
                 .bounceClick { onDelete() },
               contentAlignment = Alignment.Center
             ) {
-              Icon(Icons.Outlined.DeleteOutline, "Delete", tint = AccentTerracotta, modifier = Modifier.size(14.dp))
+              Box(
+                modifier = Modifier
+                  .size(24.dp)
+                  .background(AccentTerracotta.copy(alpha = 0.15f), CircleShape)
+                  .clip(CircleShape),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(Icons.Outlined.DeleteOutline, "Delete", tint = AccentTerracotta, modifier = Modifier.size(14.dp))
+              }
             }
           }
         } else {
@@ -1501,13 +1508,19 @@ fun HabitGridCard(
           if (onDelete != null) {
             Box(
               modifier = Modifier
-                .size(24.dp)
-                .background(AccentTerracotta.copy(alpha = 0.15f), CircleShape)
-                .clip(CircleShape)
+                .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
                 .bounceClick { onDelete() },
               contentAlignment = Alignment.Center
             ) {
-              Icon(Icons.Outlined.DeleteOutline, "Delete", tint = AccentTerracotta, modifier = Modifier.size(14.dp))
+              Box(
+                modifier = Modifier
+                  .size(24.dp)
+                  .background(AccentTerracotta.copy(alpha = 0.15f), CircleShape)
+                  .clip(CircleShape),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(Icons.Outlined.DeleteOutline, "Delete", tint = AccentTerracotta, modifier = Modifier.size(14.dp))
+              }
             }
           }
         } else {

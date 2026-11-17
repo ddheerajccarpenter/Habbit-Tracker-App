@@ -18,6 +18,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -126,6 +128,7 @@ fun LiquidGlassQuickCreateMenu(
     Box(
       modifier = modifier
         .fillMaxSize()
+        .imePadding()
         .zIndex(100f),
       contentAlignment = Alignment.Center
     ) {
@@ -294,10 +297,8 @@ fun LiquidGlassQuickCreateMenu(
                 if (quickText.isNotBlank()) {
                   Box(
                     modifier = Modifier
-                      .size(32.dp)
-                      .clip(CircleShape)
-                      .background(if (isDark) Color(0xFF0A84FF) else Color(0xFF007AFF))
-                      .clickable {
+                      .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
+                      .bounceClick {
                         if (onQuickCaptureTask != null) {
                           VibrationHelper.tick(context)
                           val task = parsedTask.toTask()
@@ -307,12 +308,20 @@ fun LiquidGlassQuickCreateMenu(
                       },
                     contentAlignment = Alignment.Center
                   ) {
-                    Icon(
-                      imageVector = Icons.Default.ArrowUpward,
-                      contentDescription = "Create Task",
-                      tint = Color.White,
-                      modifier = Modifier.size(16.dp)
-                    )
+                    Box(
+                      modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(if (isDark) Color(0xFF0A84FF) else Color(0xFF007AFF)),
+                      contentAlignment = Alignment.Center
+                    ) {
+                      Icon(
+                        imageVector = Icons.Default.ArrowUpward,
+                        contentDescription = "Create Task",
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
+                      )
+                    }
                   }
                 }
               }

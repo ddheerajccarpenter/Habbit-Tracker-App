@@ -177,6 +177,18 @@ fun HabitListScreen(
           onActionClick = onNavigateToAddHabit,
           actionTestTag = "habits_add_button"
         )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Search Bar
+        SketchSearchBar(
+          query = searchQuery,
+          onQueryChange = { viewModel.setHabitSearchQuery(it) },
+          placeholder = "Search habits...",
+          modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
       }
 
       // Filter Tabs
@@ -368,8 +380,14 @@ fun HabitListScreen(
           AppEmptyState(
             icon = Icons.Default.Check,
             title = if (searchQuery.isNotBlank()) "No matching habits" else "No habits",
-            actionText = if (searchQuery.isBlank()) "Create Habit" else null,
-            onAction = onNavigateToAddHabit
+            actionText = if (searchQuery.isNotBlank()) "Clear Search" else "Create Habit",
+            onAction = {
+              if (searchQuery.isNotBlank()) {
+                viewModel.setHabitSearchQuery("")
+              } else {
+                onNavigateToAddHabit()
+              }
+            }
           )
         }
       } else {

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -116,7 +117,9 @@ fun SearchScreen(
   val trimmedQuery = query.trim().lowercase()
 
   val matchingTasks = remember(tasks, trimmedQuery, selectedFilterTab) {
-    if (trimmedQuery.isEmpty()) {
+    if (selectedFilterTab == 2) {
+      emptyList()
+    } else if (trimmedQuery.isEmpty()) {
       tasks
     } else {
       tasks.filter { task ->
@@ -132,7 +135,7 @@ fun SearchScreen(
   }
 
   val matchingHabits = remember(habits, trimmedQuery, selectedFilterTab) {
-    if (selectedFilterTab == 3) {
+    if (selectedFilterTab == 1 || selectedFilterTab == 3) {
       emptyList()
     } else if (trimmedQuery.isEmpty()) {
       habits.filter { !it.isArchived }
@@ -154,6 +157,7 @@ fun SearchScreen(
     modifier = modifier
       .fillMaxSize()
       .paperDotBackground()
+      .imePadding()
   ) {
     LazyColumn(
       modifier = Modifier
@@ -413,17 +417,13 @@ fun SearchScreen(
                 )
               )
 
-              val streakInfo = viewModel.getHabitStreak(matchingHabits.first())
-              if (streakInfo.currentStreak > 0) {
-                Text(
-                  text = "${streakInfo.currentStreak} day streak",
-                  style = TextStyle(
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = InkPrimary
-                  )
+              Text(
+                text = "${matchingHabits.size} results",
+                style = TextStyle(
+                  fontSize = 12.sp,
+                  color = InkSecondary
                 )
-              }
+              )
             }
           }
 

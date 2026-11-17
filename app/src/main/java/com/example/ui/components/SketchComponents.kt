@@ -2500,17 +2500,17 @@ fun CircularProgressGauge(
   modifier: Modifier = Modifier,
   strokeWidth: Dp = 8.dp,
   primaryColor: Color? = null,
-  secondaryColor: Color = InkWashIvory,
+  secondaryColor: Color? = null,
   centerContent: (@Composable () -> Unit)? = null
 ) {
   val resolvedPrimaryColor = primaryColor ?: LocalAppColors.current.oklchPrimary
+  val defaultTrackColor = if (LocalAppColors.current.isDark) Color(0x334A4A4A) else Color(0x33CBCBCB)
+  val resolvedSecondaryColor = secondaryColor ?: defaultTrackColor
   val animatedProgress by animateFloatAsState(
     targetValue = progress.coerceIn(0f, 1f),
     animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f),
     label = "gaugeProgress"
   )
-
-  val trackColor = if (LocalAppColors.current.isDark) Color(0x334A4A4A) else Color(0x33CBCBCB)
 
   Box(
     modifier = modifier,
@@ -2527,7 +2527,7 @@ fun CircularProgressGauge(
 
       // Background track
       drawArc(
-        color = trackColor,
+        color = resolvedSecondaryColor,
         startAngle = -90f,
         sweepAngle = 360f,
         useCenter = false,

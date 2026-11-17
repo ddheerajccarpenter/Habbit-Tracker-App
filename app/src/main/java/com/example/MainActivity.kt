@@ -737,6 +737,7 @@ fun MainApp(
                 AppNavDestination.TaskDetail(initialTitle = title, initialNotes = notes)
               )
             },
+            gestureState = navController.gestureState,
             onDismiss = { navController.navigateBack() }
           )
         }
@@ -1418,11 +1419,12 @@ fun FocusTimerDialog(
   var remainingSeconds by remember { mutableIntStateOf(initialMinutes * 60) }
   var isRunning by remember { mutableStateOf(false) }
 
-  LaunchedEffect(isRunning, remainingSeconds) {
-    if (isRunning && remainingSeconds > 0) {
-      kotlinx.coroutines.delay(1000L)
-      remainingSeconds--
-    } else if (isRunning && remainingSeconds == 0) {
+  LaunchedEffect(isRunning) {
+    if (isRunning) {
+      while (remainingSeconds > 0) {
+        kotlinx.coroutines.delay(1000L)
+        remainingSeconds--
+      }
       isRunning = false
       com.example.util.VibrationHelper.shakeDetected(context)
       android.widget.Toast.makeText(context, "Focus Session Complete!", android.widget.Toast.LENGTH_LONG).show()
@@ -1494,8 +1496,7 @@ fun FocusTimerDialog(
         progress = timerProgress,
         modifier = Modifier.size(170.dp),
         strokeWidth = 9.dp,
-        primaryColor = OklchPrimaryToken,
-        secondaryColor = InkWashIvory
+        primaryColor = OklchPrimaryToken
       ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
           Text(
