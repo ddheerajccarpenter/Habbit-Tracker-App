@@ -111,8 +111,8 @@ fun CalendarScreen(
   onNavigateToAddTask: () -> Unit,
   onTaskClick: (Task) -> Unit,
   onHabitClick: (Habit) -> Unit,
-  showHeader: Boolean = true,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  showHeader: Boolean = true
 ) {
   val tasks by viewModel.tasks.collectAsStateWithLifecycle()
   val habits by viewModel.habits.collectAsStateWithLifecycle()

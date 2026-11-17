@@ -516,14 +516,14 @@ private fun AuthTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    modifier: Modifier = Modifier,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     onImeAction: () -> Unit = {},
-    contentDescriptionText: String = "",
-    modifier: Modifier = Modifier
+    contentDescriptionText: String = ""
 ) {
     OutlinedTextField(
         value = value,

@@ -143,11 +143,11 @@ import java.time.LocalDate
 
 @Composable
 fun ToolsScreen(
+  modifier: Modifier = Modifier,
   onBack: (() -> Unit)? = null,
   onToolModalStateChanged: ((Boolean) -> Unit)? = null,
   onCreateTaskFromResult: ((title: String, notes: String) -> Unit)? = null,
-  onToolClick: ((ToolDefinition) -> Unit)? = null,
-  modifier: Modifier = Modifier
+  onToolClick: ((ToolDefinition) -> Unit)? = null
 ) {
   val context = LocalContext.current
   val favoriteToolIds by AppPreferences.favoriteToolIds.collectAsStateWithLifecycle()

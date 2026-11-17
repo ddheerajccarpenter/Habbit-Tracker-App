@@ -183,13 +183,13 @@ fun LiquidGlassBackdrop(
         }
     } else null
     val cachedRenderEffect = remember(shader) {
-        shader?.let {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && shader != null) {
             try {
-                RenderEffect.createRuntimeShaderEffect(it, "content").asComposeRenderEffect()
+                RenderEffect.createRuntimeShaderEffect(shader, "content").asComposeRenderEffect()
             } catch (_: Throwable) {
                 null
             }
-        }
+        } else null
     }
 
     val refractionModifier = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -377,8 +377,8 @@ fun LiquidGlassContainer(
  */
 @Composable
 fun LiquidGlassEffectContainer(
-    spacing: Dp = 16.dp,
     modifier: Modifier = Modifier,
+    spacing: Dp = 16.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
     CompositionLocalProvider(LocalLiquidGlassContainerSpacing provides spacing) {

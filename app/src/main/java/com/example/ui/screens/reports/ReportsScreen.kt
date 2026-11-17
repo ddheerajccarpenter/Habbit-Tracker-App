@@ -113,9 +113,9 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ReportsScreen(
+    modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
-    onNavigateToAddTask: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    onNavigateToAddTask: (() -> Unit)? = null
 ) {
     val viewModel: ReportsViewModel = viewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()

@@ -101,8 +101,8 @@ fun TaskListScreen(
   onNavigateToAddTask: () -> Unit,
   onTaskClick: (Task) -> Unit,
   onBack: () -> Unit,
-  showHeader: Boolean = true,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  showHeader: Boolean = true
 ) {
   val filteredTasks by viewModel.filteredTasks.collectAsStateWithLifecycle()
   val currentFilter by viewModel.taskFilter.collectAsStateWithLifecycle()

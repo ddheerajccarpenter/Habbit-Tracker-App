@@ -160,12 +160,12 @@ fun HomeScreen(
   onNavigateToAddHabit: () -> Unit,
   onTaskClick: (Task) -> Unit,
   onHabitClick: (Habit) -> Unit,
+  modifier: Modifier = Modifier,
   onNavigateToSettings: (() -> Unit)? = null,
   onNavigateToSearch: (() -> Unit)? = null,
   onNavigateToTools: (() -> Unit)? = null,
   onOpenFocusTimer: (() -> Unit)? = null,
-  onQuickAdd: (() -> Unit)? = null,
-  modifier: Modifier = Modifier
+  onQuickAdd: (() -> Unit)? = null
 ) {
   val context = LocalContext.current
   val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -1174,13 +1174,13 @@ fun TaskItemCard(
   task: Task,
   subtasksCount: Int,
   subtasksDone: Int,
-  isEditMode: Boolean = false,
-  is24Hour: Boolean = true,
   onToggle: () -> Unit,
   onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  isEditMode: Boolean = false,
+  is24Hour: Boolean = true,
   onLongClick: (() -> Unit)? = null,
-  onDelete: (() -> Unit)? = null,
-  modifier: Modifier = Modifier
+  onDelete: (() -> Unit)? = null
 ) {
   val textColor by animateColorAsState(
     targetValue = if (task.isCompleted) InkSecondary else InkPrimary,
@@ -1349,13 +1349,13 @@ fun TaskGridCard(
   task: Task,
   subtasksCount: Int,
   subtasksDone: Int,
-  isEditMode: Boolean = false,
-  is24Hour: Boolean = true,
   onToggle: () -> Unit,
   onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  isEditMode: Boolean = false,
+  is24Hour: Boolean = true,
   onLongClick: (() -> Unit)? = null,
-  onDelete: (() -> Unit)? = null,
-  modifier: Modifier = Modifier
+  onDelete: (() -> Unit)? = null
 ) {
   val textColor by animateColorAsState(
     targetValue = if (task.isCompleted) InkMuted else InkPrimary,
@@ -1450,13 +1450,13 @@ fun TaskGridCard(
 fun HabitGridCard(
   habit: Habit,
   isCompleted: Boolean,
-  currentSessions: Int = 0,
   streakDays: Int,
-  isEditMode: Boolean = false,
   onToggle: () -> Unit,
   onClick: () -> Unit,
-  onDelete: (() -> Unit)? = null,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  currentSessions: Int = 0,
+  isEditMode: Boolean = false,
+  onDelete: (() -> Unit)? = null
 ) {
   val cardAlpha by animateFloatAsState(
     targetValue = if (isCompleted) 0.70f else 1.0f,
@@ -1572,13 +1572,13 @@ fun HabitGridCard(
 fun HabitItemCard(
   habit: Habit,
   isCompleted: Boolean,
-  currentSessions: Int = 0,
   streakDays: Int,
-  isEditMode: Boolean = false,
   onToggle: () -> Unit,
   onClick: () -> Unit,
-  onDelete: (() -> Unit)? = null,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  currentSessions: Int = 0,
+  isEditMode: Boolean = false,
+  onDelete: (() -> Unit)? = null
 ) {
   val textColor by animateColorAsState(
     targetValue = if (isCompleted) InkSecondary else InkPrimary,

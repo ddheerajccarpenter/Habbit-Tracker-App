@@ -86,7 +86,7 @@ class ShakeDetectionService : Service() {
     private fun startInForeground() {
         val notification = buildPersistentNotification()
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 startForeground(
                     SERVICE_NOTIFICATION_ID,
                     notification,
@@ -95,7 +95,7 @@ class ShakeDetectionService : Service() {
             } else {
                 startForeground(SERVICE_NOTIFICATION_ID, notification)
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             SafeLog.e(TAG, "Error calling startForeground", e)
         }
     }

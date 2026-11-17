@@ -95,7 +95,7 @@ object AppPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_THEME_MODE, normalized)
-            .commit() // Synchronous disk commit so restart/recreation immediately reads new theme
+            .apply()
         _themeMode.value = normalized
     }
 

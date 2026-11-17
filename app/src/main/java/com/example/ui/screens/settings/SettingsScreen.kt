@@ -136,9 +136,9 @@ fun SettingsScreen(
   viewModel: MainViewModel,
   authViewModel: AuthViewModel,
   onBack: () -> Unit,
+  modifier: Modifier = Modifier,
   onNavigateToDiagnostics: (() -> Unit)? = null,
-  onNavigateToTools: (() -> Unit)? = null,
-  modifier: Modifier = Modifier
+  onNavigateToTools: (() -> Unit)? = null
 ) {
   val context = LocalContext.current
   val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -449,10 +449,24 @@ fun SettingsScreen(
                   .background(OklchCoral.copy(alpha = 0.12f))
                   .border(1.dp, OklchCoral.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
                   .bounceClick {
-                    val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                      putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+                    try {
+                      val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                          putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        }
+                      } else {
+                        Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                          data = Uri.fromParts("package", context.packageName, null)
+                        }
+                      }
+                      context.startActivity(intent)
+                    } catch (_: Exception) {
+                      try {
+                        context.startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                          data = Uri.fromParts("package", context.packageName, null)
+                        })
+                      } catch (_: Exception) {}
                     }
-                    context.startActivity(intent)
                   }
                   .padding(horizontal = 12.dp, vertical = 10.dp)
               ) {

@@ -105,12 +105,12 @@ import java.util.UUID
 @Composable
 fun TaskDetailEditScreen(
   viewModel: MainViewModel,
+  onDismiss: () -> Unit,
+  modifier: Modifier = Modifier,
   existingTask: Task? = null,
   initialTitle: String = "",
   initialNotes: String = "",
-  initialIsShortTerm: Boolean = false,
-  onDismiss: () -> Unit,
-  modifier: Modifier = Modifier
+  initialIsShortTerm: Boolean = false
 ) {
   val context = LocalContext.current
   val isEditing = existingTask != null

@@ -93,9 +93,9 @@ fun LiquidGlassQuickCreateMenu(
   onNewTask: () -> Unit,
   onNewHabit: () -> Unit,
   onShortTermTask: () -> Unit,
+  modifier: Modifier = Modifier,
   onOpenTools: (() -> Unit)? = null,
   onQuickCaptureTask: ((Task) -> Unit)? = null,
-  modifier: Modifier = Modifier,
   gestureState: PredictiveBackGestureState? = null,
   hazeState: dev.chrisbanes.haze.HazeState? = null
 ) {

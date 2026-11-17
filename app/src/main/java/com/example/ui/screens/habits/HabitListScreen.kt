@@ -106,8 +106,8 @@ fun HabitListScreen(
   onNavigateToAddHabit: () -> Unit,
   onHabitClick: (Habit) -> Unit,
   onBack: () -> Unit,
-  showHeader: Boolean = true,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  showHeader: Boolean = true
 ) {
   val habits by viewModel.habits.collectAsStateWithLifecycle()
   val filteredHabits by viewModel.filteredHabits.collectAsStateWithLifecycle()

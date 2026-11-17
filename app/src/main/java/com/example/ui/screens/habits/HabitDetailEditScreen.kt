@@ -96,9 +96,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HabitDetailEditScreen(
   viewModel: MainViewModel,
-  existingHabit: Habit? = null,
   onDismiss: () -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  existingHabit: Habit? = null
 ) {
   val context = LocalContext.current
   val isEditing = existingHabit != null

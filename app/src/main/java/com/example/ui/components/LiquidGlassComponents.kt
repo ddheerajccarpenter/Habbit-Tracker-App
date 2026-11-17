@@ -861,10 +861,10 @@ fun LiquidGlassNavigationDock(
       }
     } else null
     val cachedLensRenderEffect = remember(lensShader) {
-      lensShader?.let {
-        try { RenderEffect.createRuntimeShaderEffect(it, "content").asComposeRenderEffect() }
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && lensShader != null) {
+        try { RenderEffect.createRuntimeShaderEffect(lensShader, "content").asComposeRenderEffect() }
         catch (_: Throwable) { null }
-      }
+      } else null
     }
     val lensModifier = if (
       Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&

@@ -91,8 +91,8 @@ fun SearchScreen(
   viewModel: MainViewModel,
   onTaskClick: (Task) -> Unit,
   onHabitClick: (Habit) -> Unit,
-  onBack: (() -> Unit)? = null,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  onBack: (() -> Unit)? = null
 ) {
   val tasks by viewModel.tasks.collectAsStateWithLifecycle()
   val habits by viewModel.habits.collectAsStateWithLifecycle()

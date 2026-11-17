@@ -776,7 +776,12 @@ object ReminderScheduler {
   private fun setAlarm(alarmManager: AlarmManager, triggerEpochMillis: Long, pendingIntent: PendingIntent) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
       if (alarmManager.canScheduleExactAlarms()) {
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerEpochMillis, pendingIntent)
+        try {
+          alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerEpochMillis, pendingIntent)
+        } catch (e: SecurityException) {
+          Log.w(TAG, "Exact alarm permission revoked dynamically; falling back to standard alarm", e)
+          alarmManager.set(AlarmManager.RTC_WAKEUP, triggerEpochMillis, pendingIntent)
+        }
       } else {
         alarmManager.set(AlarmManager.RTC_WAKEUP, triggerEpochMillis, pendingIntent)
       }

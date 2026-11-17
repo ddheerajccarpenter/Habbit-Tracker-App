@@ -947,7 +947,7 @@ fun MainApp(
   val effectiveUpdate = availableUpdate ?: activeCurrentUpdate
 
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-  var resumeCounter by remember { mutableStateOf(0) }
+  var resumeCounter by remember { mutableIntStateOf(0) }
   DisposableEffect(lifecycleOwner) {
     val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
       if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {

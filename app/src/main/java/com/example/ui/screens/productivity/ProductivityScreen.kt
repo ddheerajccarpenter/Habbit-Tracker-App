@@ -60,9 +60,9 @@ fun ProductivityScreen(
   onTaskClick: (Task) -> Unit,
   onHabitClick: (Habit) -> Unit,
   onBackToHome: () -> Unit,
+  modifier: Modifier = Modifier,
   onSwipeToTools: (() -> Unit)? = null,
-  onQuickAdd: (() -> Unit)? = null,
-  modifier: Modifier = Modifier
+  onQuickAdd: (() -> Unit)? = null
 ) {
   var selectedTab by remember { mutableIntStateOf(0) } // 0: Tasks, 1: Habits, 2: Calendar
   val context = LocalContext.current
