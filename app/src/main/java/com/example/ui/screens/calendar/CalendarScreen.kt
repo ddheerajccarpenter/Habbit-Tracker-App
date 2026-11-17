@@ -136,6 +136,7 @@ fun CalendarScreen(
   }
 
   val selectedDateStr = selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
+  val isDarkMonth = com.example.ui.theme.LocalAppColors.current.isDark
   val today = LocalDate.now()
   val nowTime = LocalTime.now()
 
@@ -554,6 +555,7 @@ fun MonthViewCard(
   onMonthChange: (YearMonth) -> Unit,
   onDateSelected: (LocalDate) -> Unit
 ) {
+  val isDarkMonth = com.example.ui.theme.LocalAppColors.current.isDark
   val today = LocalDate.now()
   val nowTime = LocalTime.now()
 
@@ -751,7 +753,9 @@ fun MonthViewCard(
                   .bounceClick(scaleDown = 0.90f) { onDateSelected(cellDate) }
                   .then(
                     if (isSelected) {
-                      Modifier.border(1.8.dp, CardBorder, CircleShape)
+                      Modifier
+                        .border(1.2.dp, com.example.ui.theme.LocalAppColors.current.oklchPrimary, CircleShape)
+                        .background(com.example.ui.theme.LocalAppColors.current.oklchPrimary.copy(alpha = if (isDarkMonth) 0.20f else 0.14f))
                     } else {
                       Modifier
                     }
@@ -763,7 +767,7 @@ fun MonthViewCard(
                   style = TextStyle(
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    color = if (!isCurrent) InkMuted else if (cellDate == today) AccentTerracotta else InkPrimary
+                    color = if (isSelected) com.example.ui.theme.LocalAppColors.current.oklchPrimary else if (!isCurrent) InkMuted else if (cellDate == today) com.example.ui.theme.LocalAppColors.current.oklchPrimary else InkPrimary
                   )
                 )
               }
@@ -815,6 +819,7 @@ fun WeekViewCard(
     (0..6).map { weekStart.plusDays(it.toLong()) }
   }
 
+  val isDarkMonth = com.example.ui.theme.LocalAppColors.current.isDark
   val today = LocalDate.now()
   val nowTime = LocalTime.now()
 
@@ -907,10 +912,10 @@ fun WeekViewCard(
               .height(48.dp)
                 .clip(CircleShape)
                 .bounceClick(scaleDown = 0.90f) { onDateSelected(date) }
-                .background(if (isSelected) (if (isDarkCal) Color(0x30FFFFFF) else Color(0xEEFFFFFF)) else Color.Transparent)
+                .background(if (isSelected) com.example.ui.theme.LocalAppColors.current.oklchPrimary.copy(alpha = if (isDarkCal) 0.20f else 0.14f) else Color.Transparent)
                 .border(
-                  0.75.dp,
-                  if (isSelected) (if (isDarkCal) Color(0x50FFFFFF) else Color(0x30000000)) else CardBorder.copy(alpha = 0.4f),
+                  if (isSelected) 1.2.dp else 0.75.dp,
+                  if (isSelected) com.example.ui.theme.LocalAppColors.current.oklchPrimary else CardBorder.copy(alpha = 0.4f),
                   CircleShape
                 ),
               contentAlignment = Alignment.Center
@@ -920,7 +925,7 @@ fun WeekViewCard(
                 style = TextStyle(
                   fontSize = 14.sp,
                   fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                  color = if (isSelected) (if (isDarkCal) Color.White else Color(0xFF111113)) else InkPrimary
+                  color = if (isSelected) com.example.ui.theme.LocalAppColors.current.oklchPrimary else InkPrimary
                 )
               )
             }
@@ -948,6 +953,7 @@ fun DayViewSelector(
   selectedDate: LocalDate,
   onDateSelected: (LocalDate) -> Unit
 ) {
+  val isDarkMonth = com.example.ui.theme.LocalAppColors.current.isDark
   val today = LocalDate.now()
 
   LiquidGlassCard(

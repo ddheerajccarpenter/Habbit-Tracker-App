@@ -581,7 +581,7 @@ fun HabitDetailEditScreen(
                   )
                   Text(
                     text = "Every day at $singleTime  Edit",
-                    style = TextStyle(fontSize = 12.sp, color = AccentTerracotta, fontWeight = FontWeight.Medium)
+                    style = TextStyle(fontSize = 12.sp, color = com.example.ui.theme.LocalAppColors.current.oklchPrimary, fontWeight = FontWeight.Medium)
                   )
                 }
               }
@@ -620,7 +620,7 @@ fun HabitDetailEditScreen(
                       text = if (reminderEnabled) "Different reminder set for each session" else "Reminders disabled",
                       style = TextStyle(
                         fontSize = 12.sp,
-                        color = if (reminderEnabled) AccentTerracotta else InkSecondary,
+                        color = if (reminderEnabled) com.example.ui.theme.LocalAppColors.current.oklchPrimary else InkSecondary,
                         fontWeight = FontWeight.Medium
                       )
                     )
@@ -681,7 +681,7 @@ fun HabitDetailEditScreen(
                         )
                         Text(
                           text = "Every day at $sessionTime  Edit",
-                          style = TextStyle(fontSize = 12.sp, color = AccentTerracotta, fontWeight = FontWeight.Medium)
+                          style = TextStyle(fontSize = 12.sp, color = com.example.ui.theme.LocalAppColors.current.oklchPrimary, fontWeight = FontWeight.Medium)
                         )
                       }
 

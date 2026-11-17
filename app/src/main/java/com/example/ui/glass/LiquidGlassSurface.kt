@@ -270,14 +270,14 @@ fun Modifier.liquidGlassRim(
     }
     val strokeWidth = borderWidth.toPx()
 
-    val apexBoost = if (variant == LiquidGlassVariant.Prominent) 0.18f else 0.0f
-    val touchBoost = 0.15f * interactiveProgress
+    val apexBoost = if (variant == LiquidGlassVariant.Prominent) 0.08f else 0.0f
+    val touchBoost = 0.08f * interactiveProgress
 
     val specularColors = if (isDark) {
         listOf(
-            (tint ?: Color.White).copy(alpha = (0.36f + apexBoost + touchBoost).coerceIn(0f, 1f)),
-            Color.White.copy(alpha = (0.14f + touchBoost * 0.5f).coerceIn(0f, 1f)),
-            Color.White.copy(alpha = 0.08f)
+            (tint ?: Color.White).copy(alpha = (0.22f + apexBoost + touchBoost).coerceIn(0f, 1f)),
+            Color.White.copy(alpha = (0.10f + touchBoost * 0.5f).coerceIn(0f, 1f)),
+            Color.White.copy(alpha = 0.04f)
         )
     } else {
         listOf(

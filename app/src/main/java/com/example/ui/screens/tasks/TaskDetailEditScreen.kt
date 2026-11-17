@@ -870,8 +870,8 @@ fun TaskDetailEditScreen(
                       .then(
                         if (isSelected) {
                           Modifier
-                            .border(1.8.dp, AccentTerracotta, CircleShape)
-                            .background(AccentTerracotta.copy(alpha = 0.15f))
+                            .border(1.8.dp, com.example.ui.theme.LocalAppColors.current.oklchPrimary, CircleShape)
+                            .background(com.example.ui.theme.LocalAppColors.current.oklchPrimary.copy(alpha = 0.18f))
                         } else {
                           Modifier
                         }

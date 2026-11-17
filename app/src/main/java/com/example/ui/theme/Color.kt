@@ -9,21 +9,22 @@ import androidx.compose.ui.graphics.Color
 // Content surfaces are opaque for reliable contrast; optical controls retain translucency.
 // =========================================================================
 
-// Canonical Dark Tokens (designglass.md §02B — Neutral Charcoal Environment)
-val CanonicalCanvasDark = Color(0xFF121212)
-val CanonicalCanvasSecondaryDark = Color(0xFF1C1C1C)
-val CanonicalGlassFillBaseDark = Color(0xFF202020)
-val CanonicalGlassFillElevatedDark = Color(0xFF2A2A2A)
-val CanonicalGlassFillSubtleDark = Color(0xFF191919)
-val CanonicalGlassBorderTopDark = Color(0x40FFFFFF) // Solid Specular Hairline
-val CanonicalGlassBorderBottomDark = Color(0x18FFFFFF)
-val CanonicalGlassSheenTopDark = Color(0x40FFFFFF)
-val CanonicalTextPrimaryDark = Color(0xFFF2F2F2)
-val CanonicalTextSecondaryDark = Color(0xFFCECECE)
-val CanonicalTextMutedDark = Color(0xFFA8A8A8)
-val CanonicalDividerDark = Color(0x26FFFFFF) // Solid interior separator
-val CanonicalAccentActionDark = Color(0xFFF2F2F2)
+// Canonical Dark Tokens (designglass.md §02B — Midnight Onyx / Obsidian Slate Environment)
+val CanonicalCanvasDark = Color(0xFF090D14)
+val CanonicalCanvasSecondaryDark = Color(0xFF111724)
+val CanonicalGlassFillBaseDark = Color(0xFF161E2E)
+val CanonicalGlassFillElevatedDark = Color(0xFF1E283D)
+val CanonicalGlassFillSubtleDark = Color(0xFF131926)
+val CanonicalGlassBorderTopDark = Color(0x24FFFFFF) // Solid Specular Hairline (14% white)
+val CanonicalGlassBorderBottomDark = Color(0x0A000000)
+val CanonicalGlassSheenTopDark = Color(0x20FFFFFF)
+val CanonicalTextPrimaryDark = Color(0xFFF8FAFC)
+val CanonicalTextSecondaryDark = Color(0xFFCBD5E1)
+val CanonicalTextMutedDark = Color(0xFF8A99AC)
+val CanonicalDividerDark = Color(0x14FFFFFF) // 8% white interior separator
+val CanonicalAccentActionDark = Color(0xFF38BDF8)
 val CanonicalDestructiveDark = Color(0xFFF87171)
+val CanonicalDestructiveLight = Color(0xFFDC2626)
 
 // =========================================================================
 // Authentic Liquid Glass Design System Tokens (Zero Blur)
@@ -33,22 +34,22 @@ val LiquidGlassCanvasDark = CanonicalCanvasDark
 val LiquidGlassCanvasSecondaryDark = CanonicalCanvasSecondaryDark
 
 // Translucent Layered Materials
-val LiquidGlassCardTopDark = Color(0x382E2E2E)
-val LiquidGlassCardBottomDark = Color(0x22202020)
-val LiquidGlassCapsuleTopDark = Color(0x40383838)
-val LiquidGlassCapsuleBottomDark = Color(0x28262626)
-val LiquidGlassLensTopDark = Color(0x4DFFFFFF)
-val LiquidGlassLensMidDark = Color(0x26FFFFFF)
-val LiquidGlassLensBottomDark = Color(0x12262626)
+val LiquidGlassCardTopDark = Color(0x38161E2E)
+val LiquidGlassCardBottomDark = Color(0x22111724)
+val LiquidGlassCapsuleTopDark = Color(0x401E283D)
+val LiquidGlassCapsuleBottomDark = Color(0x28161E2E)
+val LiquidGlassLensTopDark = Color(0x33FFFFFF)
+val LiquidGlassLensMidDark = Color(0x18FFFFFF)
+val LiquidGlassLensBottomDark = Color(0x0A000000)
 
-// Specular Rims & Hairline Highlights (Zero Blur)
-val LiquidGlassBorderSpecularTop = Color(0x59FFFFFF)   // 35% crisp overhead specular highlight
-val LiquidGlassBorderSpecularMid = Color(0x24FFFFFF)   // 14% lateral decay
+// Specular Rims & Hairline Highlights (Delicate & Physical)
+val LiquidGlassBorderSpecularTop = Color(0x33FFFFFF)   // 20% delicate overhead specular highlight
+val LiquidGlassBorderSpecularMid = Color(0x14FFFFFF)   // 8% lateral decay
 val LiquidGlassBorderSpecularBottom = Color(0x0C000000)// 5% subtle dark rim
-val LiquidGlassBorderSubtle = Color(0x20FFFFFF)        // Interior capsule separators
+val LiquidGlassBorderSubtle = Color(0x14FFFFFF)        // Interior capsule separators
 
-val LiquidGlassButtonResting = Color(0x33303030)    // 20% alpha
-val LiquidGlassButtonPressed = Color(0x52424242)    // 32% alpha
+val LiquidGlassButtonResting = Color(0x241E283D)
+val LiquidGlassButtonPressed = Color(0x3D1E283D)
 
 // Canonical Light Tokens (Warm Ivory & Solid Surface System)
 val CanonicalCanvasLight = Color.White
@@ -65,7 +66,6 @@ val CanonicalTextMutedDarkLight = Color(0xFF7A7D82)
 val CanonicalTextMutedLight = Color(0xFF7A7D82)
 val CanonicalDividerLight = Color(0xFFCBCBCB)
 val CanonicalAccentActionLight = Color(0xFF4A4A4A)
-val CanonicalDestructiveLight = Color(0xFF555555)
 
 val BrandCharcoalDark = CanonicalCanvasDark
 val BrandCharcoalElevated = CanonicalCanvasSecondaryDark
@@ -93,16 +93,15 @@ val PaletteMintLeaf = BrandTextPrimary
 // =========================================================================
 // Ink Wash Universal Palette (Authentic Japanese Ink & Neutral Parchment)
 // Canonical Swatches (Premium Monochromatic & Refined Warm Off-White):
-// 1. Charcoal Slate:      #171717 / #4A4A4A
-// 2. Mist Silver:         #CBCBCB / #D6D6DC
-// 3. Off-White Canvas:    #FAFAF7 (Purged all yellow/cream #FFFFE3)
-// 4. Slate Steel Wash:    #5E6E82 / #6D8196
-// Zero yellow cast, zero neon blue, zero neon green, zero AI-sloped colors.
+// 1. Charcoal Slate:      #090D14 / #161E2E
+// 2. Mist Silver:         #94A3B8 / #CBD5E1
+// 3. Off-White Canvas:    #FAFAF7
+// 4. Slate Steel Wash:    #64748B / #94A3B8
 // =========================================================================
-val InkWashCharcoal = Color.Black
-val InkWashMist = Color(0xFFB0B0B0)
-val InkWashIvory = Color(0xFFFFFFFF)          // Crisp white primary text
-val InkWashSlate = Color(0xFF555555)
+val InkWashCharcoal = Color(0xFF090D14)
+val InkWashMist = Color(0xFFCBD5E1)
+val InkWashIvory = Color(0xFFF8FAFC)          // Crisp luminous off-white primary text
+val InkWashSlate = Color(0xFF8A99AC)
 
 // Tonal derivatives ensuring Dark Mode is darker than Light Mode
 val InkWashCharcoalDeep = CanonicalCanvasDark
@@ -112,7 +111,7 @@ val InkWashCharcoalBorder = Color(0x14FFFFFF) // Subtle Hairline Border (8% whit
 val InkWashIvoryPaper = Color.White
 val InkWashIvoryCard = Color(0xB8FFFFFF)      // Primary glass surface: rgba(255, 255, 255, 0.72)
 val InkWashIvoryElevated = Color(0xD6FFFFFF)  // Elevated glass surface: rgba(255, 255, 255, 0.84)
-val InkWashRustMuted = Color(0xFF555555)
+val InkWashRustMuted = Color(0xFFF87171)
 
 // Semantic tokens are resolved from the active theme. Light mode uses slate ink;
 // dark mode uses a lighter steel tint so small labels retain clear contrast.
@@ -138,16 +137,16 @@ val BugattiSurfaceElevated = GrapeSurfaceElevated
 val BugattiHairline = GrapeHairline
 val BugattiHairlineStrong = GrapeHairlineStrong
 
-val BugattiInk = Color(0xFFF5F5F7)
+val BugattiInk = Color(0xFFF8FAFC)
 val BugattiBody = InkWashMist
-val BugattiBodyStrong = Color(0xFFF5F5F7)
-val BugattiMuted = Color(0xFF8E9296)
-val BugattiMutedSoft = Color(0xFF8E9296)
+val BugattiBodyStrong = Color(0xFFF8FAFC)
+val BugattiMuted = Color(0xFF8A99AC)
+val BugattiMutedSoft = Color(0xFF8A99AC)
 
-val BugattiLink = InkWashSlate
-val BugattiWarning = InkWashSlate
-val BugattiSuccess = InkWashSlate
-val BugattiDanger = InkWashRustMuted
+val BugattiLink = Color(0xFF38BDF8)
+val BugattiWarning = Color(0xFFFBBF24)
+val BugattiSuccess = Color(0xFF34D399)
+val BugattiDanger = Color(0xFFF87171)
 
 // --- Light Mode Tokens (Clean Off-White Canvas & Translucent Soft Surfaces) ---
 val LightCanvas = InkWashIvoryPaper           // #FAFAF7
@@ -174,9 +173,9 @@ val MobbinTextMuted = LightInkMuted
 val MobbinTextFaint = Color(0xFF9E9FA3)
 val MobbinAccent = InkWashCharcoal
 
-val MobbinSuccess = InkWashSlate
-val MobbinWarning = InkWashSlate
-val MobbinDanger = InkWashRustMuted
+val MobbinSuccess = Color(0xFF10B981)
+val MobbinWarning = Color(0xFFF59E0B)
+val MobbinDanger = Color(0xFFEF4444)
 
 // Canonical TDlxHT Tri-Color System
 val BlueHorizon = Color(0xFF2FA4D7)       // 1. Blue Horizon #2FA4D7: Primary Vibrant Accent
@@ -186,9 +185,9 @@ val LightTextCocoa = Color(0xFF574E42)    // Light mode text color #574e42
 val LightTextMuted = Color(0xFF6E655B)
 
 // Coca Noir Liquid Glass Tints (Translucent, never solid)
-val CocaNoirNavGlassDark = Color(0x4D242424)   // Translucent neutral charcoal tint in dark mode
+val CocaNoirNavGlassDark = Color(0x4D111724)   // Translucent obsidian charcoal tint in dark mode
 val CocaNoirNavGlassLight = Color(0x223E2C23)  // Translucent warm cocoa tint in light mode
-val CocaNoirShadowDark = Color(0x99000000)     // Crisp ambient drop shadow in dark mode
+val CocaNoirShadowDark = Color(0xB3000000)     // Crisp ambient drop shadow in dark mode
 val CocaNoirShadowLight = Color(0x383E2C23)    // Soft cocoa drop shadow
 
 data class TriColorPalette(
@@ -283,17 +282,17 @@ val DarkColors = AppColors(
   inkSecondary = CanonicalTextSecondaryDark,
   inkMuted = CanonicalTextMutedDark,
   cardBackground = CanonicalGlassFillBaseDark,
-  cardBorder = Color(0x2EFFFFFF),
-  pillBackgroundDark = Color(0xFFF2F2F2),
-  pillTextDark = Color(0xFF121212),
-  progressBarTrack = Color(0x24FFFFFF),
+  cardBorder = Color(0x18FFFFFF),
+  pillBackgroundDark = Color(0xFFF1F5F9),
+  pillTextDark = Color(0xFF090D14),
+  progressBarTrack = Color(0x1AFFFFFF),
   progressBarFilled = Color(0xFF38BDF8),
-  accentTerracotta = Color(0xFFE0E0E0),
+  accentTerracotta = Color(0xFFCBD5E1),
   accentOrange = Color(0xFF38BDF8),
-  accentYellowHighlight = Color(0x2638BDF8),
+  accentYellowHighlight = Color(0x2038BDF8),
   accentRed = Color(0xFFF87171),
-  chipBorder = Color(0x2EFFFFFF),
-  chipUnselected = Color(0xFF191919),
+  chipBorder = Color(0x18FFFFFF),
+  chipUnselected = CanonicalGlassFillSubtleDark,
   isDark = true,
   oklchPrimary = Color(0xFF38BDF8),
   oklchSuccess = Color(0xFF34D399),
@@ -307,7 +306,7 @@ val DarkColors = AppColors(
   cocaNoirShadow = CocaNoirShadowDark,
   blueHorizonAccent = Color(0xFF38BDF8),
   focusRing = Color(0xFF38BDF8),
-  focusHalo = Color(0xFF121212)
+  focusHalo = Color(0xFF090D14)
 )
 
 val LocalAppColors = staticCompositionLocalOf { DarkColors }

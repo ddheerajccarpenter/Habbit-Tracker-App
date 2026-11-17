@@ -751,7 +751,7 @@ fun HomeScreen(
                   progress = summary.overallProgress,
                   modifier = Modifier.size(48.dp),
                   strokeWidth = 5.dp,
-                  progressColor = InkPrimary
+                  progressColor = LocalAppColors.current.oklchPrimary
                 )
               }
             }
@@ -1276,14 +1276,22 @@ fun TaskItemCard(
 
           if (task.priority == TaskPriority.HIGH) {
             Spacer(modifier = Modifier.width(6.dp))
-            Text(
-              text = "!",
-              style = TextStyle(
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Black,
-                color = AccentRed
+            Box(
+              modifier = Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .background(AccentRed.copy(alpha = if (LocalAppColors.current.isDark) 0.18f else 0.12f))
+                .padding(horizontal = 4.dp, vertical = 1.dp)
+            ) {
+              Text(
+                text = "HIGH",
+                style = TextStyle(
+                  fontSize = 9.sp,
+                  fontWeight = FontWeight.Bold,
+                  letterSpacing = 0.5.sp,
+                  color = AccentRed
+                )
               )
-            )
+            }
           }
 
           if (task.isShortTerm) {
@@ -1655,15 +1663,19 @@ fun HabitItemCard(
 
           if (streakDays > 0) {
             Spacer(modifier = Modifier.width(8.dp))
+            val isDarkTheme = LocalAppColors.current.isDark
+            val warningColor = LocalAppColors.current.oklchWarning
             Box(
               modifier = Modifier
                 .scale(streakScale)
-                .border(1.2.dp, CardBorder, RoundedCornerShape(10.dp))
-                .padding(horizontal = 7.dp, vertical = 2.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(warningColor.copy(alpha = if (isDarkTheme) 0.16f else 0.10f))
+                .border(0.75.dp, warningColor.copy(alpha = if (isDarkTheme) 0.35f else 0.25f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
               Text(
                 text = "${streakDays}d streak",
-                style = TextStyle(fontFamily = com.example.ui.theme.SpecialFontFamily, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = InkPrimary)
+                style = TextStyle(fontFamily = com.example.ui.theme.SpecialFontFamily, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isDarkTheme) warningColor else InkPrimary)
               )
             }
           }

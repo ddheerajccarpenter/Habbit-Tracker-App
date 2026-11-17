@@ -31,7 +31,7 @@ fun AppleGroupedCard(
   val isDark = LocalAppColors.current.isDark
   val cardShape = RoundedCornerShape(cornerRadius)
   val cardBg = if (isDark) {
-    Color.White.copy(alpha = 0.06f)
+    com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = 0.70f)
   } else {
     Color.White.copy(alpha = 0.78f)
   }

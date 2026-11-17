@@ -423,8 +423,8 @@ fun TaskListScreen(
                         selectedTaskIds + task.id
                       }
                     },
-                  backgroundColor = if (isSelected) AccentTerracotta.copy(alpha = 0.12f) else CardBackground,
-                  borderColor = if (isSelected) AccentTerracotta else CardBorder,
+                  backgroundColor = if (isSelected) com.example.ui.theme.LocalAppColors.current.oklchPrimary.copy(alpha = 0.14f) else CardBackground,
+                  borderColor = if (isSelected) com.example.ui.theme.LocalAppColors.current.oklchPrimary else CardBorder,
                   borderWidth = if (isSelected) 1.dp else 0.75.dp,
                   cornerRadius = 14.dp
                 ) {
@@ -460,11 +460,11 @@ fun TaskListScreen(
                         .size(24.dp)
                         .border(
                           width = 1.8.dp,
-                          color = if (isSelected) AccentTerracotta else CardBorder,
+                          color = if (isSelected) com.example.ui.theme.LocalAppColors.current.oklchPrimary else CardBorder,
                           shape = CircleShape
                         )
                         .background(
-                          color = if (isSelected) AccentTerracotta else Color.Transparent,
+                          color = if (isSelected) com.example.ui.theme.LocalAppColors.current.oklchPrimary else Color.Transparent,
                           shape = CircleShape
                         ),
                       contentAlignment = Alignment.Center
