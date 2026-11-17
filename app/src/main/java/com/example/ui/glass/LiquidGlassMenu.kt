@@ -316,7 +316,7 @@ fun LiquidGlassMenu(
           noiseFactor = if (isDark) 0.03f else 0f
           tints = buildList {
             if (isDark) {
-              add(dev.chrisbanes.haze.HazeTint(Color(0xFF14151B).copy(alpha = 0.85f)))
+              add(dev.chrisbanes.haze.HazeTint(com.example.ui.theme.CanonicalGlassFillElevatedDark.copy(alpha = 0.85f)))
             } else {
               add(dev.chrisbanes.haze.HazeTint(Color(0xFFFAFAFC).copy(alpha = 0.90f)))
             }
@@ -327,7 +327,7 @@ fun LiquidGlassMenu(
       }
 
       val fallbackBg = if (isDark) {
-        Brush.verticalGradient(listOf(Color(0xF0181A22), Color(0xF2121319)))
+        Brush.verticalGradient(listOf(com.example.ui.theme.CanonicalGlassFillElevatedDark, com.example.ui.theme.CanonicalGlassFillBaseDark))
       } else {
         Brush.verticalGradient(listOf(Color(0xF5FFFFFF), Color(0xFAF4F5F7)))
       }

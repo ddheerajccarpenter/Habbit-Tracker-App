@@ -143,30 +143,30 @@ fun LiquidGlassBackdrop(
 ) {
     val defaultBaseTint = when (variant) {
         LiquidGlassVariant.Prominent -> {
-            if (isDark) Color(0xFF141824).copy(alpha = 0.50f)
+            if (isDark) com.example.ui.theme.CanonicalGlassFillElevatedDark.copy(alpha = 0.50f)
             else Color.White.copy(alpha = 0.65f)
         }
         LiquidGlassVariant.Subtle -> {
-            if (isDark) Color(0xFF090A0E).copy(alpha = 0.22f)
+            if (isDark) com.example.ui.theme.CanonicalCanvasSecondaryDark.copy(alpha = 0.22f)
             else Color.White.copy(alpha = 0.30f)
         }
         LiquidGlassVariant.Regular -> {
-            if (isDark) Color(0xFF0B0C10).copy(alpha = 0.34f)
+            if (isDark) com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = 0.34f)
             else Color.White.copy(alpha = 0.45f)
         }
     }
     val glassTint = tintColor ?: defaultBaseTint
     val fallback = fallbackColor ?: when (variant) {
         LiquidGlassVariant.Prominent -> {
-            if (isDark) Color(0xFF141824).copy(alpha = 0.90f)
+            if (isDark) com.example.ui.theme.CanonicalGlassFillElevatedDark.copy(alpha = 0.90f)
             else Color.White.copy(alpha = 0.92f)
         }
         LiquidGlassVariant.Subtle -> {
-            if (isDark) Color(0xFF090A0E).copy(alpha = 0.70f)
+            if (isDark) com.example.ui.theme.CanonicalCanvasSecondaryDark.copy(alpha = 0.70f)
             else Color.White.copy(alpha = 0.78f)
         }
         LiquidGlassVariant.Regular -> {
-            if (isDark) Color(0xFF0B0C10).copy(alpha = 0.80f)
+            if (isDark) com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = 0.80f)
             else Color.White.copy(alpha = 0.86f)
         }
     }
@@ -473,7 +473,7 @@ fun Modifier.liquidGlass(
             )
 
             val baseFallbackColor = if (isDark) {
-                Color(0xFF0B0C10).copy(alpha = if (variant == LiquidGlassVariant.Prominent) 0.65f else 0.45f)
+                com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = if (variant == LiquidGlassVariant.Prominent) 0.65f else 0.45f)
             } else {
                 Color.White.copy(alpha = if (variant == LiquidGlassVariant.Prominent) 0.75f else 0.55f)
             }
@@ -499,7 +499,7 @@ fun Modifier.liquidGlass(
                     noiseFactor = if (isDark) 0.04f else 0f
                     tints = listOf(
                         HazeTint(
-                            (tint ?: if (isDark) Color(0xFF0B0C10) else Color.White).copy(
+                            (tint ?: if (isDark) com.example.ui.theme.CanonicalGlassFillBaseDark else Color.White).copy(
                                 alpha = when (variant) {
                                     LiquidGlassVariant.Prominent -> if (isDark) 0.50f else 0.65f
                                     LiquidGlassVariant.Subtle -> if (isDark) 0.22f else 0.30f

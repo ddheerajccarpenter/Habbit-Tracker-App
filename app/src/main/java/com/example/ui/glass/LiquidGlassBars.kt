@@ -89,7 +89,7 @@ fun LiquidGlassTopAppBar(
                     )
                 } else {
                     Modifier.cloudy(radius = 24).background(
-                        if (isDark) Color(0xD90B0C10) else Color(0xEBFFFFFF)
+                        if (isDark) com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = 0.85f) else Color(0xEBFFFFFF)
                     )
                 }
             )
@@ -237,7 +237,7 @@ fun LiquidGlassLinearProgress(
     )
 
     val resolvedTrackColor = trackColor ?: if (isDark) {
-        Color(0x22141822)
+        com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = 0.13f)
     } else {
         Color(0x22000000)
     }

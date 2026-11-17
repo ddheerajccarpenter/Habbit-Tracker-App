@@ -13,6 +13,8 @@
 
 </div>
 
+> Source target: **3.0.1 (94)**. This update is code-only; no new APK has been generated. Download manifests continue to describe the previously packaged release.
+
 ---
 
 > ⚙️ **Developer & Execution Guidelines:**

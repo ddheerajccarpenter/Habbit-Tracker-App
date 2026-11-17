@@ -222,7 +222,10 @@ class HabitRepository(
       records: List<HabitCompletionRecord>,
       referenceDate: LocalDate = LocalDate.now()
     ): HabitStreakInfo {
-      val recordMap = records.associateBy { it.date }
+      val recordMap = records.asSequence()
+        .filter { it.habitId == habit.id }
+        .groupBy { it.date }
+        .mapValues { (_, dailyRecords) -> dailyRecords.maxBy { it.timestamp } }
       val startDate = try {
         LocalDate.parse(habit.startDate, DateTimeFormatter.ISO_LOCAL_DATE)
       } catch (e: Exception) {

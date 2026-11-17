@@ -977,12 +977,12 @@ fun Modifier.fluidLensedGlass(
       noiseFactor = if (isDark) 0.04f else 0f
       tints = listOf(
         HazeTint(
-          if (isDark) Color(0xFF0B0C10).copy(alpha = 0.34f)
+          if (isDark) com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = 0.34f)
           else Color.White.copy(alpha = 0.45f)
         )
       )
       fallbackTint = HazeTint(
-        if (isDark) Color(0xFF0B0C10).copy(alpha = 0.80f)
+        if (isDark) com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = 0.80f)
         else Color.White.copy(alpha = 0.86f)
       )
     }
@@ -1384,7 +1384,7 @@ fun GlassMenu(
           noiseFactor = if (isDark) 0.03f else 0f
           tints = buildList {
             if (isDark) {
-              add(dev.chrisbanes.haze.HazeTint(Color(0xFF14151B).copy(alpha = 0.85f)))
+              add(dev.chrisbanes.haze.HazeTint(com.example.ui.theme.CanonicalGlassFillElevatedDark.copy(alpha = 0.85f)))
             } else {
               add(dev.chrisbanes.haze.HazeTint(Color(0xFFFAFAFC).copy(alpha = 0.90f)))
             }
@@ -1395,7 +1395,7 @@ fun GlassMenu(
       }
 
       val fallbackBg = if (isDark) {
-        Brush.verticalGradient(listOf(Color(0xF0181A22), Color(0xF2121319)))
+        Brush.verticalGradient(listOf(com.example.ui.theme.CanonicalGlassFillElevatedDark, com.example.ui.theme.CanonicalGlassFillBaseDark))
       } else {
         Brush.verticalGradient(listOf(Color(0xF5FFFFFF), Color(0xFAF4F5F7)))
       }
@@ -1522,7 +1522,7 @@ fun GlassSwitch(
   val isPressed by interactionSource.collectIsPressedAsState()
 
   val appThemeTint = if (isDark) {
-    Color(0xFFE5A93C) // Warm Gold / PrimaryAccent in dark mode
+    LocalAppColors.current.oklchPrimary // Shared action accent
   } else {
     Color(0xFF2C2C2E) // Deep Ink in light mode
   }
@@ -1549,7 +1549,7 @@ fun GlassSwitch(
     targetValue = if (checked) {
       activeTint
     } else {
-      if (isDark) Color(0x38353A45) else Color(0x33000000)
+      if (isDark) com.example.ui.theme.CanonicalGlassFillElevatedDark.copy(alpha = 0.22f) else Color(0x33000000)
     },
     animationSpec = if (reduceMotion) androidx.compose.animation.core.snap() else tween(180),
     label = "glassSwitchTrackBg"

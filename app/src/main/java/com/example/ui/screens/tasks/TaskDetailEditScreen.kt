@@ -1,6 +1,7 @@
 package com.example.ui.screens.tasks
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
@@ -187,7 +188,13 @@ fun TaskDetailEditScreen(
   var showDiscardDialog by remember { mutableStateOf(false) }
   val dirtyAnimProgress = remember { Animatable(0f) }
 
-  PredictiveBackHandler(enabled = isDirty) { progressFlow ->
+  // Clean backstack arbitration: if dialogs are open, prioritize their dismissal
+  BackHandler(enabled = showDiscardDialog || showDeleteDialog) {
+    if (showDeleteDialog) showDeleteDialog = false
+    else if (showDiscardDialog) showDiscardDialog = false
+  }
+
+  PredictiveBackHandler(enabled = isDirty && !showDiscardDialog && !showDeleteDialog) { progressFlow ->
     try {
       progressFlow.collect { backEvent ->
         dirtyAnimProgress.snapTo(backEvent.progress)

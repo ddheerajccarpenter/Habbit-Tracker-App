@@ -105,6 +105,7 @@ enum class PredictiveBackTarget {
 @Stable
 class PredictiveBackGestureState {
   var isPredictingBack by mutableStateOf(false)
+  var isCommitted by mutableStateOf(false)
   var targetKind by mutableStateOf(PredictiveBackTarget.NONE)
   var progress by mutableFloatStateOf(0f)
   var swipeEdge by mutableIntStateOf(BackEventCompat.EDGE_LEFT)
@@ -316,6 +317,7 @@ fun PredictiveNavigationHost(
         gestureState.animProgress.snapTo(backEvent.progress)
       }
       // Gesture committed past threshold: animate foreground card smoothly off-screen
+      gestureState.isCommitted = true
       gestureState.animProgress.animateTo(
         targetValue = 1f,
         animationSpec = spring(
@@ -332,6 +334,7 @@ fun PredictiveNavigationHost(
       }
     } catch (_: CancellationException) {
       // Gesture cancelled: spring active screen smoothly back to rest (0f) in NonCancellable context
+      gestureState.isCommitted = false
       withContext(NonCancellable) {
         gestureState.animProgress.animateTo(
           targetValue = 0f,
@@ -343,6 +346,7 @@ fun PredictiveNavigationHost(
       }
     } finally {
       gestureState.isPredictingBack = false
+      gestureState.isCommitted = false
       gestureState.targetKind = PredictiveBackTarget.NONE
       gestureState.departingDestination = null
       gestureState.arrivingDestination = null
@@ -368,7 +372,7 @@ fun PredictiveNavigationHost(
     // -------------------------------------------------------------
     // LAYER 0: PREVIOUS SCREEN (UNDERNEATH PREVIEW DURING GESTURE)
     // -------------------------------------------------------------
-    if (isStackGesture && activeArriving != null) {
+    if ((isStackGesture && activeArriving != null) || isTabGesture) {
       val progress = gestureState.animProgress.value
       // Previous screen rises smoothly from depth: scale 0.94f -> 1.0f
       val prevScale = 0.94f + (progress * 0.06f)
@@ -386,7 +390,11 @@ fun PredictiveNavigationHost(
             clip = prevCorner > 0.dp
           }
       ) {
-        content(activeArriving)
+        if (isTabGesture) {
+          content(AppNavDestination.Main(0))
+        } else if (activeArriving != null) {
+          content(activeArriving)
+        }
         // Subtle ambient scrim that fades out cleanly as the previous screen arrives
         if (scrimAlpha > 0f) {
           Box(
@@ -407,14 +415,16 @@ fun PredictiveNavigationHost(
       val activeScale = 1f - (progress * 0.08f)
       val activeCorner = (progress * 28).dp
 
-      val translationPx = if (isEdgeRight) {
+      val translationPx = if (gestureState.isCommitted) {
+        fullWidthPx * progress * 1.05f
+      } else if (isEdgeRight) {
         - (fullWidthPx * 0.12f * progress)
       } else {
-        fullWidthPx * progress * 0.82f
+        fullWidthPx * progress * 0.95f
       }
       val shadowElevationPx = with(density) { 20.dp.toPx() }
-      val activeAlpha = if (progress > 0.70f) {
-        ((1f - progress) / 0.30f).coerceIn(0f, 1f)
+      val activeAlpha = if (progress > 0.85f) {
+        ((1f - progress) / 0.15f).coerceIn(0f, 1f)
       } else {
         1f
       }
@@ -437,8 +447,15 @@ fun PredictiveNavigationHost(
       }
     } else if (isTabGesture) {
       val progress = gestureState.animProgress.value
-      val activeScale = 1f - (progress * 0.05f)
-      val activeCorner = (progress * 18).dp
+      val activeScale = 1f - (progress * 0.08f)
+      val activeCorner = (progress * 24).dp
+      val translationPx = fullWidthPx * progress * 0.95f
+      val shadowElevationPx = with(density) { 20.dp.toPx() }
+      val activeAlpha = if (progress > 0.85f) {
+        ((1f - progress) / 0.15f).coerceIn(0f, 1f)
+      } else {
+        1f
+      }
 
       Box(
         modifier = Modifier
@@ -446,8 +463,11 @@ fun PredictiveNavigationHost(
           .graphicsLayer {
             scaleX = activeScale
             scaleY = activeScale
+            translationX = translationPx
             shape = RoundedCornerShape(activeCorner)
             clip = activeCorner > 0.dp
+            shadowElevation = shadowElevationPx
+            alpha = activeAlpha
           }
           .background(PaperBackground)
       ) {

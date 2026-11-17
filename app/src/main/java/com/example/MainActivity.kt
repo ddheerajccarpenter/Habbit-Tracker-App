@@ -48,6 +48,8 @@ import androidx.compose.ui.graphics.lerp
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import com.example.ui.navigation.horizontalSwipeNavigation
+import androidx.compose.ui.zIndex
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.DisposableEffect
 import com.example.util.AppPreferences
 import com.example.util.ShakeDetector
@@ -791,14 +793,11 @@ fun MainApp(
       }
 
       is AppNavOverlay.FocusTimer -> {
-        Dialog(onDismissRequest = { navController.dismissOverlay() }) {
-          AnimatedDialogContent {
-            FocusTimerDialog(
-              initialMinutes = overlay.initialMinutes,
-              onClose = { navController.dismissOverlay() }
-            )
-          }
-        }
+        FocusTimerOverlay(
+          initialMinutes = overlay.initialMinutes,
+          onClose = { navController.dismissOverlay() },
+          gestureState = navController.gestureState
+        )
       }
 
       is AppNavOverlay.ToolRunner -> {
@@ -810,6 +809,7 @@ fun MainApp(
               AppNavDestination.TaskDetail(initialTitle = title, initialNotes = notes)
             )
           },
+          gestureState = navController.gestureState,
           onDismiss = { navController.dismissOverlay() }
         )
       }
@@ -1357,6 +1357,54 @@ fun SketchBottomNavigationBar(
         .fillMaxWidth()
         .padding(horizontal = 16.dp)
     )
+  }
+}
+
+@Composable
+fun FocusTimerOverlay(
+  initialMinutes: Int = 25,
+  onClose: () -> Unit,
+  gestureState: com.example.ui.navigation.PredictiveBackGestureState? = null
+) {
+  val isDark = com.example.ui.theme.LocalAppColors.current.isDark
+  val isPredictingBack = gestureState?.isPredictingBack == true && gestureState.targetKind == com.example.ui.navigation.PredictiveBackTarget.OVERLAY
+  val gestureProgress = gestureState?.animProgress?.value ?: 0f
+  val scrimBaseAlpha = if (isDark) 0.58f else 0.28f
+  val scrimAlpha = if (isPredictingBack) (scrimBaseAlpha * (1f - gestureProgress)).coerceIn(0f, scrimBaseAlpha) else scrimBaseAlpha
+  val translationYPx = with(LocalDensity.current) { (160.dp * gestureProgress).toPx() }
+  val cardScale = if (isPredictingBack) (1f - gestureProgress * 0.10f).coerceIn(0.88f, 1f) else 1f
+  val cardAlpha = if (isPredictingBack) ((1f - gestureProgress * 1.25f)).coerceIn(0f, 1f) else 1f
+
+  Box(
+    modifier = Modifier
+      .fillMaxSize()
+      .zIndex(100f)
+      .background(Color.Black.copy(alpha = scrimAlpha))
+      .clickable(
+        interactionSource = remember { MutableInteractionSource() },
+        indication = null,
+        onClick = onClose
+      ),
+    contentAlignment = Alignment.Center
+  ) {
+    Box(
+      modifier = Modifier
+        .graphicsLayer {
+          translationY = translationYPx
+          scaleX = cardScale
+          scaleY = cardScale
+          alpha = cardAlpha
+        }
+        .clickable(
+          interactionSource = remember { MutableInteractionSource() },
+          indication = null
+        ) { /* Consume clicks inside card */ }
+    ) {
+      FocusTimerDialog(
+        initialMinutes = initialMinutes,
+        onClose = onClose
+      )
+    }
   }
 }
 

@@ -15,6 +15,8 @@ import com.example.data.model.TaskPriority
 import com.example.reminder.ReminderScheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -24,6 +26,8 @@ class TaskRepository(
   private val taskDao: TaskDao,
   private val subtaskDao: SubtaskDao
 ) {
+
+  private val subtaskToggleMutex = Mutex()
 
   val allTasks: Flow<List<Task>> = taskDao.getAllTasks().map { entities ->
     entities.map { it.toDomainModel() }
@@ -196,28 +200,29 @@ class TaskRepository(
   }
 
   suspend fun toggleSubtaskCompletion(subtaskId: String, autoMarkParent: Boolean = false) {
-    val all = subtaskDao.getAllSubtasks()
-    // Find subtask from sync query
-    // Query directly or update
-    val subtasks = subtaskDao.getSubtasksForTaskSync("") // We can update directly
-  }
+    // Serialize read/modify/write so rapid taps cannot reuse the same stored state.
+    subtaskToggleMutex.withLock {
+      val current = subtaskDao.getAllSubtasksSync().firstOrNull { it.id == subtaskId }
+        ?: return@withLock
+      val updated = current.copy(isCompleted = !current.isCompleted)
+      subtaskDao.updateSubtask(updated)
 
-  suspend fun toggleSubtask(subtask: Subtask, autoMarkParent: Boolean = false) {
-    val updated = subtask.copy(isCompleted = !subtask.isCompleted)
-    subtaskDao.updateSubtask(updated.toEntity())
-
-    if (autoMarkParent) {
-      val parentSubtasks = subtaskDao.getSubtasksForTaskSync(subtask.parentTaskId)
-      if (parentSubtasks.isNotEmpty()) {
-        val allDone = parentSubtasks.all { if (it.id == subtask.id) updated.isCompleted else it.isCompleted }
-        if (allDone) {
-          val parent = taskDao.getTaskByIdSync(subtask.parentTaskId)
+      if (autoMarkParent) {
+        val siblings = subtaskDao.getSubtasksForTaskSync(current.parentTaskId)
+        if (siblings.isNotEmpty() && siblings.all { it.isCompleted }) {
+          val parent = taskDao.getTaskByIdSync(current.parentTaskId)
           if (parent != null && !parent.isCompleted) {
-            taskDao.updateTask(parent.copy(isCompleted = true, updatedTimestamp = System.currentTimeMillis()))
+            // Use the same completion path as the task checkbox: date, reminders and recurrence.
+            toggleTaskCompletion(parent.id)
           }
         }
       }
     }
+  }
+
+  suspend fun toggleSubtask(subtask: Subtask, autoMarkParent: Boolean = false) {
+    // Screen models may predate a previous tap or an edit; only their identity is authoritative.
+    toggleSubtaskCompletion(subtask.id, autoMarkParent)
   }
 
   companion object {

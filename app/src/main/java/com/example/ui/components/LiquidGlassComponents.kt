@@ -365,7 +365,7 @@ fun LiquidGlassSegmentedControl(
   }
 
   val trackBrush = if (isDark) {
-    Brush.verticalGradient(listOf(Color(0x38222630), Color(0x2814161C)))
+    Brush.verticalGradient(listOf(com.example.ui.theme.LiquidGlassCapsuleTopDark, com.example.ui.theme.LiquidGlassCapsuleBottomDark))
   } else {
     Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.65f), Color.White.copy(alpha = 0.40f)))
   }
@@ -730,7 +730,7 @@ fun LiquidGlassNavigationDock(
   // Apple Liquid Glass track material (mirrors the web nav dock):
   // neutral smoked grey in dark, translucent milk-white in light —
   // no warm tint, so the blurred page reads as physical glass, not brown plastic.
-  val trackTint = if (isDark) Color(0x732C2C30) else Color(0x75FFFFFF)
+  val trackTint = if (isDark) com.example.ui.theme.CanonicalCanvasSecondaryDark.copy(alpha = 0.45f) else Color(0x75FFFFFF)
   val sideGlowColor = if (isDark) {
     Color.White.copy(alpha = 0.10f)
   } else {
@@ -1033,7 +1033,7 @@ fun FloatingLiquidGlassActionButton(
   val hazeState = LocalHazeState.current
   val trackBackdrop = rememberLayerBackdrop()
   val selectedColor = if (isDark) Color.White.copy(alpha = 0.16f) else Color.White.copy(alpha = 0.85f)
-  val trackColor = if (isDark) Color(0x38181A20) else Color.Black.copy(alpha = 0.065f)
+  val trackColor = if (isDark) com.example.ui.theme.CanonicalCanvasSecondaryDark.copy(alpha = 0.22f) else Color.Black.copy(alpha = 0.065f)
 
   Box(
     modifier = modifier

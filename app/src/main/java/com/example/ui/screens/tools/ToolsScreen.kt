@@ -98,6 +98,10 @@ import com.example.ui.theme.LocalAppColors
 import com.example.ui.components.GlassCard
 import com.example.ui.components.GlassButton
 import com.example.ui.components.fluidLensedGlass
+import com.example.ui.navigation.PredictiveBackGestureState
+import com.example.ui.navigation.PredictiveBackTarget
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import com.example.ui.components.GlassMenu
 import com.example.ui.components.GlassMenuItem
 import com.example.ui.components.GlassMenuItemData
@@ -298,12 +302,12 @@ fun ToolsScreen(
               val pillBg = if (isSelected) {
                 if (isDark) Color.White.copy(alpha = 0.20f) else Color.White.copy(alpha = 0.85f)
               } else {
-                if (isDark) Color(0x24181A20) else Color.White.copy(alpha = 0.35f)
+                if (isDark) LocalAppColors.current.chipUnselected else Color.White.copy(alpha = 0.35f)
               }
               val textColor = if (isSelected) {
                 if (isDark) Color.White else Color(0xFF1C1C1E)
               } else {
-                if (isDark) Color.White.copy(alpha = 0.50f) else Color(0xFF8E8E93)
+                if (isDark) LocalAppColors.current.inkSecondary else Color(0xFF8E8E93)
               }
               Box(
                 modifier = Modifier
@@ -563,6 +567,7 @@ fun ToolsScreen(
 fun ToolRunnerModal(
   tool: ToolDefinition,
   onCreateTaskFromResult: ((title: String, notes: String) -> Unit)? = null,
+  gestureState: PredictiveBackGestureState? = null,
   onDismiss: () -> Unit
 ) {
   val context = LocalContext.current
@@ -664,10 +669,18 @@ fun ToolRunnerModal(
 
   // Semi-transparent backdrop with click-to-dismiss and touch absorption
   val isDark = com.example.ui.theme.LocalAppColors.current.isDark
+  val isPredictingBack = gestureState?.isPredictingBack == true && gestureState.targetKind == PredictiveBackTarget.OVERLAY
+  val gestureProgress = gestureState?.animProgress?.value ?: 0f
+  val scrimBaseAlpha = if (isDark) 0.58f else 0.28f
+  val scrimAlpha = if (isPredictingBack) (scrimBaseAlpha * (1f - gestureProgress)).coerceIn(0f, scrimBaseAlpha) else scrimBaseAlpha
+  val translationYPx = with(LocalDensity.current) { (180.dp * gestureProgress).toPx() }
+  val sheetScale = if (isPredictingBack) (1f - gestureProgress * 0.10f).coerceIn(0.88f, 1f) else 1f
+  val sheetAlpha = if (isPredictingBack) ((1f - gestureProgress * 1.25f)).coerceIn(0f, 1f) else 1f
+
   Box(
     modifier = Modifier
       .fillMaxSize()
-      .background(Color.Black.copy(alpha = if (isDark) 0.58f else 0.28f))
+      .background(Color.Black.copy(alpha = scrimAlpha))
       .clickable(
         interactionSource = remember { MutableInteractionSource() },
         indication = null
@@ -689,6 +702,12 @@ fun ToolRunnerModal(
         modifier = Modifier
           .fillMaxWidth()
           .padding(12.dp)
+          .graphicsLayer {
+            translationY = translationYPx
+            scaleX = sheetScale
+            scaleY = sheetScale
+            alpha = sheetAlpha
+          }
           .fluidLensedGlass(
             shape = RoundedCornerShape(22.dp),
             elevation = 16.dp,

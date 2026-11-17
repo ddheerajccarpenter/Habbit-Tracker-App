@@ -357,9 +357,9 @@ private fun SwitcherItem(
 ) {
     val isDark = LocalAppColors.current.isDark
     val contentColor = if (selected) {
-        if (isDark) Color.White else com.example.ui.theme.CocaNoir
+        if (isDark) LocalAppColors.current.inkPrimary else com.example.ui.theme.CocaNoir
     } else {
-        if (isDark) Color.White.copy(alpha = 0.55f) else Color(0xFF71717A)
+        if (isDark) LocalAppColors.current.inkSecondary else Color(0xFF71717A)
     }
     val pressScale by animateFloatAsState(
         targetValue = if (pressed) 0.92f else 1f,
