@@ -366,58 +366,60 @@ fun SettingsScreen(
           modifier = Modifier.fillMaxWidth().staggeredEntrance(index = 1),
           cornerRadius = 18.dp
         ) {
-          // Theme selector
-          Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Text(
-              text = "Theme Mode",
-              style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = InkPrimary)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+          Column(modifier = Modifier.fillMaxWidth()) {
+            // Theme selector
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+              Text(
+                text = "Theme Mode",
+                style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = InkPrimary)
+              )
+              Spacer(modifier = Modifier.height(10.dp))
 
-            val prefTheme by com.example.util.AppPreferences.themeMode.collectAsStateWithLifecycle()
-            val effectiveTheme = if (prefTheme.isNotBlank()) prefTheme else settings.themeMode
-            val themeModes = listOf("SYSTEM" to "System", "LIGHT" to "Light", "DARK" to "Dark")
-            val selectedThemeIndex = themeModes.indexOfFirst { it.first.equals(effectiveTheme, ignoreCase = true) }.coerceAtLeast(0)
+              val prefTheme by com.example.util.AppPreferences.themeMode.collectAsStateWithLifecycle()
+              val effectiveTheme = if (prefTheme.isNotBlank()) prefTheme else settings.themeMode
+              val themeModes = listOf("SYSTEM" to "System", "LIGHT" to "Light", "DARK" to "Dark")
+              val selectedThemeIndex = themeModes.indexOfFirst { it.first.equals(effectiveTheme, ignoreCase = true) }.coerceAtLeast(0)
 
-            GlassSegmented(
-              options = themeModes.map { it.second },
-              value = selectedThemeIndex,
-              onChange = { index ->
-                val mode = themeModes[index].first
-                com.example.util.AppPreferences.setThemeMode(context, mode)
-                viewModel.updateSettings(settings.copy(themeMode = mode))
-              },
-              modifier = Modifier.fillMaxWidth()
-            )
-          }
+              GlassSegmented(
+                options = themeModes.map { it.second },
+                value = selectedThemeIndex,
+                onChange = { index ->
+                  val mode = themeModes[index].first
+                  com.example.util.AppPreferences.setThemeMode(context, mode)
+                  viewModel.updateSettings(settings.copy(themeMode = mode))
+                },
+                modifier = Modifier.fillMaxWidth()
+              )
+            }
 
-          GroupedDivider()
+            GroupedDivider()
 
-          // Time format
-          Row(
-            modifier = Modifier
-              .fillMaxWidth()
-              .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-          ) {
-            Text(
-              text = "Time Format",
-              style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = InkPrimary)
-            )
+            // Time format
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Text(
+                text = "Time Format",
+                style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = InkPrimary)
+              )
 
-            val timeFormats = listOf(false to "12h", true to "24h")
-            val selectedTimeIndex = if (settings.timeFormat24Hour) 1 else 0
+              val timeFormats = listOf(false to "12h", true to "24h")
+              val selectedTimeIndex = if (settings.timeFormat24Hour) 1 else 0
 
-            GlassSegmented(
-              options = timeFormats.map { it.second },
-              value = selectedTimeIndex,
-              onChange = { index ->
-                val is24 = timeFormats[index].first
-                viewModel.updateSettings(settings.copy(timeFormat24Hour = is24))
-              },
-              modifier = Modifier.width(140.dp)
-            )
+              GlassSegmented(
+                options = timeFormats.map { it.second },
+                value = selectedTimeIndex,
+                onChange = { index ->
+                  val is24 = timeFormats[index].first
+                  viewModel.updateSettings(settings.copy(timeFormat24Hour = is24))
+                },
+                modifier = Modifier.width(140.dp)
+              )
+            }
           }
         }
 
