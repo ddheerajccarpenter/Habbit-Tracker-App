@@ -539,39 +539,14 @@ fun MainApp(
               { pagerState.currentPage + pagerState.currentPageOffsetFraction }
             }
 
-            Scaffold(
-              modifier = Modifier.fillMaxSize(),
-              containerColor = PaperBackground,
-              bottomBar = {
-                SketchBottomNavigationBar(
-                  destinations = destinations,
-                  selectedTab = navController.selectedTab,
-                  externalPageOffsetProvider = pageOffsetProvider,
-                  onDragOffset = null,
-                  onDragReleased = { finalSlot ->
-                    if (finalSlot in destinations.indices) {
-                      navController.switchTab(finalSlot)
-                    }
-                  },
-                  isQuickAddOpen = navController.activeOverlay is AppNavOverlay.QuickCreate,
-                  onDestinationSelected = { dest ->
-                    val targetIndex = destinations.indexOf(dest)
-                    if (targetIndex >= 0) {
-                      navController.switchTab(targetIndex)
-                    }
-                  },
-                  onQuickAdd = { navController.navigate(AppNavDestination.QuickCreate) },
-                  hazeState = hazeState
-                )
-              }
-            ) { innerPadding ->
+            Box(
+              modifier = Modifier.fillMaxSize()
+            ) {
               Box(
                 modifier = Modifier
                   .fillMaxSize()
                   .hazeSource(hazeState)
                   .background(PaperBackground)
-                  .padding(top = innerPadding.calculateTopPadding())
-                  .padding(bottom = innerPadding.calculateBottomPadding())
               ) {
                 HorizontalPager(
                   state = pagerState,
@@ -622,6 +597,28 @@ fun MainApp(
                   }
                 }
               }
+
+              SketchBottomNavigationBar(
+                destinations = destinations,
+                selectedTab = navController.selectedTab,
+                externalPageOffsetProvider = pageOffsetProvider,
+                onDragOffset = null,
+                onDragReleased = { finalSlot ->
+                  if (finalSlot in destinations.indices) {
+                    navController.switchTab(finalSlot)
+                  }
+                },
+                isQuickAddOpen = navController.activeOverlay is AppNavOverlay.QuickCreate,
+                onDestinationSelected = { dest ->
+                  val targetIndex = destinations.indexOf(dest)
+                  if (targetIndex >= 0) {
+                    navController.switchTab(targetIndex)
+                  }
+                },
+                onQuickAdd = { navController.navigate(AppNavDestination.QuickCreate) },
+                hazeState = hazeState,
+                modifier = Modifier.align(Alignment.BottomCenter)
+              )
             }
           }
 
@@ -1335,10 +1332,11 @@ fun SketchBottomNavigationBar(
   isQuickAddOpen: Boolean = false,
   onDestinationSelected: (AppDestination) -> Unit,
   onQuickAdd: () -> Unit = {},
-  hazeState: dev.chrisbanes.haze.HazeState? = null
+  hazeState: dev.chrisbanes.haze.HazeState? = null,
+  modifier: Modifier = Modifier
 ) {
   Column(
-    modifier = Modifier
+    modifier = modifier
       .fillMaxWidth()
       .windowInsetsPadding(WindowInsets.navigationBars)
       .padding(bottom = 8.dp),

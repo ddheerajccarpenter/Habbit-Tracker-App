@@ -109,11 +109,10 @@ const val LIQUID_GLASS_SHADER = """
         }
 
         float2 disp = -n * bend * uDisp;
-        float ca = bend * 0.045;
         half3 col;
-        col.r = content.eval(fragCoord + disp * (1.0 + ca)).r;
+        col.r = content.eval(fragCoord + disp * 1.10).r;
         col.g = content.eval(fragCoord + disp).g;
-        col.b = content.eval(fragCoord + disp * (1.0 - ca)).b;
+        col.b = content.eval(fragCoord + disp * 0.90).b;
 
         float topBias = 0.55 + 0.45 * clamp(-p.y / halfSize.y, -1.0, 1.0);
         float rim = bend * uFresnel * topBias;
@@ -308,8 +307,11 @@ fun LiquidGlassHighlight(
     borderWidth: Dp = 0.75.dp,
     variant: LiquidGlassVariant = LiquidGlassVariant.Regular,
     interactiveProgress: Float = 0f,
+    travelingShineProgress: Float = 0f,
+    tapFlareProgress: Float = 0f,
     tint: Color? = null,
 ) {
+    val density = LocalDensity.current
     val sheenAlpha = when (variant) {
         LiquidGlassVariant.Prominent -> if (isDark) 0.12f else 0.14f
         LiquidGlassVariant.Subtle -> if (isDark) 0.05f else 0.06f
@@ -324,6 +326,49 @@ fun LiquidGlassHighlight(
         modifier = modifier
             .clip(shape)
             .background(sheenBrush)
+            .drawWithCache {
+                val hasTravelingShine = travelingShineProgress in 0.001f..0.999f
+                val hasTapFlare = tapFlareProgress > 0.001f
+
+                val beamWidth = 90.dp.toPx()
+                val beamCenter = (size.width + beamWidth * 2f) * travelingShineProgress - beamWidth
+                val shineFactor = (1f - (2f * travelingShineProgress - 1f) * (2f * travelingShineProgress - 1f)).coerceIn(0f, 1f)
+                val shineAlpha = (if (isDark) 0.35f else 0.60f) * shineFactor
+                val travelingShineBrush = if (hasTravelingShine) {
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0f),
+                            Color.White.copy(alpha = shineAlpha),
+                            Color.White.copy(alpha = 0f)
+                        ),
+                        startX = beamCenter - beamWidth,
+                        endX = beamCenter + beamWidth
+                    )
+                } else null
+
+                val flareAlpha = (if (isDark) 0.25f else 0.40f) * tapFlareProgress.coerceIn(0f, 1f)
+                val flareBrush = if (hasTapFlare) {
+                    Brush.radialGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = flareAlpha),
+                            Color.White.copy(alpha = flareAlpha * 0.35f),
+                            Color.Transparent
+                        ),
+                        center = Offset(size.width * 0.5f, size.height * 0.5f),
+                        radius = (size.width * 0.6f).coerceAtLeast(60.dp.toPx())
+                    )
+                } else null
+
+                onDrawWithContent {
+                    drawContent()
+                    if (travelingShineBrush != null) {
+                        drawRect(travelingShineBrush)
+                    }
+                    if (flareBrush != null) {
+                        drawRect(flareBrush)
+                    }
+                }
+            }
             .liquidGlassRim(
                 shape = shape,
                 isDark = isDark,
@@ -404,6 +449,8 @@ fun Modifier.liquidGlass(
 ): Modifier = composed {
     val hazeState = LocalHazeState.current
     val isDark = com.example.ui.theme.LocalAppColors.current.isDark
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -429,9 +476,61 @@ fun Modifier.liquidGlass(
         }
     } else Modifier
 
+    val shader = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        remember {
+            try {
+                RuntimeShader(LIQUID_GLASS_SHADER)
+            } catch (_: Throwable) {
+                null
+            }
+        }
+    } else null
+    val cachedRenderEffect = remember(shader) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && shader != null) {
+            try {
+                RenderEffect.createRuntimeShaderEffect(shader, "content").asComposeRenderEffect()
+            } catch (_: Throwable) {
+                null
+            }
+        } else null
+    }
+
+    val refractionModifier = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && shader != null && cachedRenderEffect != null) {
+        val bandPx = with(density) { (20.dp - 3.dp * interactiveProgress).toPx() }
+        val dispPx = with(density) { (9.dp + 2.dp * interactiveProgress).toPx() }
+        val baseFresnel = when (variant) {
+            LiquidGlassVariant.Prominent -> if (isDark) 0.30f else 0.16f
+            LiquidGlassVariant.Subtle -> if (isDark) 0.16f else 0.07f
+            LiquidGlassVariant.Regular -> if (isDark) 0.22f else 0.10f
+        }
+        val fresnel = baseFresnel + 0.08f * interactiveProgress
+        Modifier.graphicsLayer {
+            val outline = shape.createOutline(
+                androidx.compose.ui.geometry.Size(size.width, size.height),
+                layoutDirection,
+                density
+            )
+            val radiusPx = when (outline) {
+                is Outline.Rounded -> outline.roundRect.topLeftCornerRadius.x
+                is Outline.Rectangle -> 0f
+                is Outline.Generic -> 0f
+            }.coerceIn(0f, min(size.width, size.height) * 0.5f)
+            shader.setFloatUniform("uSize", size.width, size.height)
+            shader.setFloatUniform("uRadius", radiusPx)
+            shader.setFloatUniform("uBand", bandPx)
+            shader.setFloatUniform("uDisp", dispPx)
+            shader.setFloatUniform("uFresnel", fresnel)
+            renderEffect = cachedRenderEffect
+            clip = false
+        }
+    } else {
+        Modifier.clip(shape)
+    }
+
     this
         .then(scaleModifier)
         .then(clickModifier)
+        .then(refractionModifier)
         .clip(shape)
         .drawWithCache {
             val outline = shape.createOutline(size, layoutDirection, this)

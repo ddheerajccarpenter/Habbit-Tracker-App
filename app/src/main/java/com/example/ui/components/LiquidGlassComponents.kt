@@ -197,7 +197,7 @@ fun LiquidGlassSurface(
 ) {
   val isDark = LocalAppColors.current.isDark
   val clickModifier = if (onClick != null) {
-    Modifier.bounceClick(shine = false, shape = shape, onClick = onClick)
+    Modifier.bounceClick(shine = true, shape = shape, onClick = onClick)
   } else Modifier
   val resolvedHaze = hazeState ?: LocalHazeState.current
   val fallbackColor = if (isDark) LiquidGlassCardTopDark else LightSurfaceElevated
@@ -710,6 +710,17 @@ fun LiquidGlassNavigationDock(
   var dragTargetPos by remember { mutableFloatStateOf(selectedTab.coerceIn(0, totalSlots - 1).toFloat()) }
   var lastHapticIndex by remember { mutableIntStateOf(selectedTab.coerceIn(0, totalSlots - 1)) }
   val tapPopAnim = remember { Animatable(0f) }
+  val travelingShineAnim = remember { Animatable(0f) }
+
+  LaunchedEffect(selectedTab) {
+    if (!reduceMotion) {
+      travelingShineAnim.snapTo(0f)
+      travelingShineAnim.animateTo(
+        targetValue = 1f,
+        animationSpec = tween(durationMillis = 440, easing = FastOutSlowInEasing)
+      )
+    }
+  }
 
   LaunchedEffect(isPressed, isDragging) {
     if (isDragging) {
@@ -852,7 +863,15 @@ fun LiquidGlassNavigationDock(
           .background(if (isDark) Color.Black.copy(alpha = 0.10f) else Color.White.copy(alpha = 0.10f))
       )
       Box(Modifier.matchParentSize().background(sideGlowBrush))
-      Box(Modifier.matchParentSize().liquidGlassRim(trackShape, isDark, 0.75.dp))
+      LiquidGlassHighlight(
+        shape = trackShape,
+        isDark = isDark,
+        borderWidth = 0.75.dp,
+        variant = LiquidGlassVariant.Prominent,
+        travelingShineProgress = travelingShineAnim.value,
+        tapFlareProgress = tapPopAnim.value,
+        modifier = Modifier.matchParentSize()
+      )
     }
 
     val lensShader = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

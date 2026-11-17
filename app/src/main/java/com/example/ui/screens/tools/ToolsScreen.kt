@@ -366,20 +366,20 @@ fun ToolsScreen(
                 placementSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioLowBouncy)
               )
             ) {
-              GlassCard(
+              LiquidGlassCard(
                 modifier = Modifier
                   .fillMaxWidth()
                   .padding(vertical = 4.dp)
-                  .bounceClick {
-                    if (!isReorderMode) {
-                      if (onToolClick != null) {
-                        onToolClick(tool)
-                      } else {
-                        activeToolId = tool.id
-                      }
+                  .testTag("tool_card_${tool.id}"),
+                onClick = {
+                  if (!isReorderMode) {
+                    if (onToolClick != null) {
+                      onToolClick(tool)
+                    } else {
+                      activeToolId = tool.id
                     }
                   }
-                  .testTag("tool_card_${tool.id}"),
+                },
                 borderColor = if (isFav) AccentTerracotta.copy(alpha = 0.6f) else CardBorder,
                 cornerRadius = 18.dp
               ) {

@@ -555,7 +555,7 @@ private fun AiProductivitySection(
 
     val advisorAccent = InkPrimary
 
-    GlassCard(
+    LiquidGlassCard(
         modifier = Modifier.fillMaxWidth().heroEntrance(delayMs = 40),
         cornerRadius = 16.dp
     ) {

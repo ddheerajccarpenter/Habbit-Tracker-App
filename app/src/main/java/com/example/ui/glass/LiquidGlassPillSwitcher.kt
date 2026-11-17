@@ -105,6 +105,14 @@ fun LiquidGlassPillSwitcher(
             animationSpec = spring(dampingRatio = 0.75f, stiffness = 480f),
             label = "switcher-pill-lift",
         )
+        val travelingShineAnim = remember { Animatable(0f) }
+        LaunchedEffect(selectedIndex) {
+            travelingShineAnim.snapTo(0f)
+            travelingShineAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = androidx.compose.animation.core.tween(durationMillis = 440, easing = androidx.compose.animation.core.FastOutSlowInEasing)
+            )
+        }
 
         LaunchedEffect(selectedIndex, dragging, itemWidthPx) {
             if (dragging) return@LaunchedEffect
@@ -173,7 +181,15 @@ fun LiquidGlassPillSwitcher(
                 Box(Modifier.fillMaxSize().background(trackBg))
             }
             Box(Modifier.fillMaxSize().background(sideGlowBrush))
-            Box(Modifier.fillMaxSize().liquidGlassRim(trackShape, isDark, 0.75.dp))
+            LiquidGlassHighlight(
+                shape = trackShape,
+                isDark = isDark,
+                borderWidth = 0.75.dp,
+                variant = LiquidGlassVariant.Prominent,
+                travelingShineProgress = travelingShineAnim.value,
+                tapFlareProgress = lift.value,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         // Pill shape & styling (elevated frosted glass lens)
