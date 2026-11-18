@@ -1168,8 +1168,8 @@ fun LiquidGlassNavItem(
   val colors = LocalAppColors.current
   val isDark = colors.isDark
   val reduceMotion = remember { isReducedMotionEnabled(context) }
-  val selectedColor = colors.inkPrimary
-  val unselectedColor = colors.inkSecondary
+  val selectedColor = if (isDark) Color.White else colors.oklchPrimary
+  val unselectedColor = if (isDark) Color.White.copy(alpha = 0.55f) else colors.inkSecondary.copy(alpha = 0.70f)
 
   val iconColor by animateColorAsState(
     targetValue = if (isSelected) selectedColor else unselectedColor,
