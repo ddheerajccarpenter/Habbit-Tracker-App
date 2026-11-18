@@ -70,7 +70,7 @@ import com.example.data.model.Habit
 import com.example.data.model.Task
 import com.example.ui.components.LiquidGlassCard
 import com.example.ui.components.LiquidGlassIconButton
-import com.example.ui.glass.LocalHazeState
+import com.example.ui.components.LocalHazeState
 import com.example.ui.navigation.PredictiveBackGestureState
 import com.example.ui.navigation.PredictiveBackTarget
 import com.example.ui.theme.InkMuted

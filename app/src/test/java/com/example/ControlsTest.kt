@@ -45,7 +45,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = Application::class)
 @OptIn(ExperimentalTestApi::class)
-class GlassControlsTest {
+class ControlsTest {
   @get:Rule val compose = createComposeRule()
 
   @Test fun navigationCanBeFocusedAndActivatedWithEnter() {

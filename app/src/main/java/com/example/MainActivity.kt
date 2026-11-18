@@ -135,7 +135,7 @@ import dev.chrisbanes.haze.rememberHazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.HazeTint
-import com.example.ui.glass.LocalHazeState
+import com.example.ui.components.LocalHazeState
 import com.example.ui.theme.LocalAppColors
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -158,7 +158,8 @@ import com.example.data.model.AppSettings
 import com.example.data.model.Habit
 import com.example.data.model.Task
 import com.example.ui.components.AnimatedDialogContent
-import com.example.ui.glass.GlassNav
+import com.example.ui.navigation.AppFloatingAddButton
+import com.example.ui.navigation.AppNavigationBar
 import com.example.ui.components.CircularProgressGauge
 import com.example.ui.components.LiquidGlassCard
 import com.example.ui.components.ClassicLoadingSpinner
@@ -621,53 +622,22 @@ fun MainApp(
                 }
               }
 
-              // Separate Dedicated Floating Action Button (Add)
-              Box(
-                modifier = Modifier
-                  .align(Alignment.BottomEnd)
-                  .windowInsetsPadding(WindowInsets.navigationBars)
-                  .padding(bottom = 76.dp, end = 20.dp)
-              ) {
-                Box(
-                  modifier = Modifier
-                    .size(54.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF1A1A1A))
-                    .border(1.dp, Color(0xFF292929), CircleShape)
-                    .clickable(
-                      interactionSource = remember { MutableInteractionSource() },
-                      indication = ripple(bounded = true, color = Color.White)
-                    ) {
-                      com.example.util.HapticManager.buttonTap(context)
-                      navController.navigate(AppNavDestination.QuickCreate)
-                    },
-                  contentAlignment = Alignment.Center
-                ) {
-                  Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Quick Create",
-                    tint = Color(0xFFF2F2F2),
-                    modifier = Modifier.size(26.dp)
-                  )
-                }
-              }
+              // Clean Material 3 Floating Action Button (Add)
+              AppFloatingAddButton(
+                onClick = { navController.navigate(AppNavDestination.QuickCreate) },
+                modifier = Modifier.align(Alignment.BottomEnd)
+              )
 
-              GlassNav(
+              // Clean Material 3 Capsule Navigation Dock
+              AppNavigationBar(
                 destinations = destinations,
                 selectedTab = navController.selectedTab,
-                externalPageOffsetProvider = pageOffsetProvider,
-                onDragReleased = { finalSlot ->
-                  if (finalSlot in destinations.indices) {
-                    navController.switchTab(finalSlot)
-                  }
-                },
                 onDestinationSelected = { dest ->
                   val targetIndex = destinations.indexOf(dest)
                   if (targetIndex >= 0) {
                     navController.switchTab(targetIndex)
                   }
                 },
-                hazeState = hazeState,
                 modifier = Modifier.align(Alignment.BottomCenter)
               )
             }

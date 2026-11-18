@@ -181,12 +181,6 @@ import com.example.ui.theme.OklchPurple
 import com.example.ui.theme.OklchPurpleSoft
 
 import com.example.ui.theme.LocalAppColors
-import com.example.ui.glass.LocalHazeState
-import com.example.ui.glass.liquidGlassRim
-import com.example.ui.glass.LiquidGlassVariant
-import com.example.ui.glass.LiquidGlassTopAppBar
-import com.example.ui.glass.LiquidGlassLinearProgress
-import com.example.ui.glass.LiquidGlassEffectContainer
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 
@@ -1136,10 +1130,10 @@ fun GlassMenu(
   contentDescription: String = "More",
   buttonSize: Dp = 40.dp
 ) {
-  com.example.ui.glass.LiquidGlassMenu(
+  LiquidGlassMenu(
     icon = icon,
     items = items.map {
-      com.example.ui.glass.LiquidGlassMenuItemData(
+      LiquidGlassMenuItemData(
         label = it.label,
         icon = it.icon,
         checked = it.checked,

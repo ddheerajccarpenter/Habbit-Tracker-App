@@ -1,4 +1,4 @@
-package com.example.ui.glass
+package com.example.ui.components
 
 import com.skydoves.cloudy.cloudy
 

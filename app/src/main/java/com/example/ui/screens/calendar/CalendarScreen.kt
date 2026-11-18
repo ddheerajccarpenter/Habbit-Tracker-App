@@ -77,7 +77,7 @@ import com.example.ui.components.AppHeader
 import com.example.ui.components.LiquidGlassSegmentedControl
 import com.example.ui.components.LiquidGlassCard
 import com.example.ui.components.LiquidGlassButton
-import com.example.ui.glass.LiquidGlassVariant
+import com.example.ui.components.LiquidGlassVariant
 import com.example.ui.theme.StrongFontFamily
 import com.example.ui.components.bounceClick
 import com.example.ui.components.heroEntrance

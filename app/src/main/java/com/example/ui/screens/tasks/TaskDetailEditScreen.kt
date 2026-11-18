@@ -76,7 +76,7 @@ import com.example.ui.components.AppHeader
 import com.example.ui.components.DeleteConfirmationDialog
 import com.example.ui.components.LiquidGlassCard
 import com.example.ui.components.LiquidGlassButton
-import com.example.ui.glass.LiquidGlassVariant
+import com.example.ui.components.LiquidGlassVariant
 import com.example.ui.components.GlassCard
 import com.example.ui.components.GlassButton
 import com.example.ui.components.GlassButtonVariant

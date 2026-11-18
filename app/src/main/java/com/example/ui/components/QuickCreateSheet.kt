@@ -1,7 +1,5 @@
 package com.example.ui.components
 
-import com.skydoves.cloudy.cloudy
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -73,13 +71,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.example.ui.glass.liquidGlassRim
 import com.example.ui.navigation.PredictiveBackGestureState
 import com.example.ui.navigation.PredictiveBackTarget
 import com.example.ui.theme.LocalAppColors
 import com.example.ui.theme.StrongFontFamily
 import com.example.util.VibrationHelper
-import dev.chrisbanes.haze.hazeEffect
 
 /**
  * Authentic iOS 26 Liquid Glass Morphing Menu Container.
@@ -90,7 +86,7 @@ import dev.chrisbanes.haze.hazeEffect
  * - Predictive Back gesture integration: smoothly translates downward and fades out as user swipes back.
  */
 @Composable
-fun LiquidGlassQuickCreateMenu(
+fun QuickCreateMenu(
   visible: Boolean,
   onDismissRequest: () -> Unit,
   onNewTask: () -> Unit,
@@ -525,8 +521,35 @@ private fun QuickTokenPill(
       style = TextStyle(
         fontSize = 11.sp,
         fontWeight = FontWeight.SemiBold,
-        color = if (isDark) Color(0xFF64D2FF) else Color(0xFF007AFF)
+        color = if (isDark) Color(0xFFF2F2F2) else Color(0xFF111111)
       )
     )
   }
+}
+
+@Composable
+fun LiquidGlassQuickCreateMenu(
+  visible: Boolean,
+  onDismissRequest: () -> Unit,
+  onNewTask: () -> Unit,
+  onNewHabit: () -> Unit,
+  onShortTermTask: () -> Unit,
+  modifier: Modifier = Modifier,
+  onOpenTools: (() -> Unit)? = null,
+  onQuickCaptureTask: ((com.example.data.model.Task) -> Unit)? = null,
+  gestureState: PredictiveBackGestureState? = null,
+  hazeState: dev.chrisbanes.haze.HazeState? = null
+) {
+  QuickCreateMenu(
+    visible = visible,
+    onDismissRequest = onDismissRequest,
+    onNewTask = onNewTask,
+    onNewHabit = onNewHabit,
+    onShortTermTask = onShortTermTask,
+    modifier = modifier,
+    onOpenTools = onOpenTools,
+    onQuickCaptureTask = onQuickCaptureTask,
+    gestureState = gestureState,
+    hazeState = hazeState
+  )
 }

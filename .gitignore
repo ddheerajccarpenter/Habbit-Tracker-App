@@ -29,3 +29,8 @@ md/
 *.md
 !/README.md
 .neon
+
+# Local engineering guide
+TODO.md
+todo.md
+

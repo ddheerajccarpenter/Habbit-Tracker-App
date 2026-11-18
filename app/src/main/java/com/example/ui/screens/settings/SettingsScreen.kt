@@ -101,7 +101,7 @@ import com.example.ui.components.LiquidGlassSegmentedControl
 import com.example.ui.components.GlassSegmented
 import com.example.ui.components.LiquidGlassIconButton
 import com.example.ui.components.LiquidGlassButton
-import com.example.ui.glass.LiquidGlassVariant
+import com.example.ui.components.LiquidGlassVariant
 import com.example.ui.components.GlassCard
 import com.example.ui.components.GlassButton
 import com.example.ui.components.GlassButtonVariant
