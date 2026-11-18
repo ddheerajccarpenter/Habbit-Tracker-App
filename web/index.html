@@ -1303,7 +1303,7 @@
               <div style="display:grid;gap:10px">
                 <div class="spec-row"><span style="color:var(--ink-muted)">Application</span><strong class="mono">TDlxHT</strong></div>
                 <div class="spec-row"><span style="color:var(--ink-muted)">Version</span><strong class="mono" id="specVersion">3.0.4</strong></div>
-                <div class="spec-row"><span style="color:var(--ink-muted)">Build Code</span><strong class="mono" id="specBuild">96</strong></div>
+                <div class="spec-row"><span style="color:var(--ink-muted)">Build Code</span><strong class="mono" id="specBuild">97</strong></div>
                 <div class="spec-row"><span style="color:var(--ink-muted)">Platform SDK</span><strong class="mono">API 26 – 36</strong></div>
                 <div class="spec-row"><span style="color:var(--ink-muted)">Toolchain</span><strong class="mono">Kotlin 2.2 · Java 21</strong></div>
                 <div class="spec-row"><span style="color:var(--ink-muted)">Persistence</span><strong class="mono">Room 2.6.1 SQLite</strong></div>
@@ -1439,7 +1439,7 @@
 
   <script>
     (() => {
-      const DEFAULT_RELEASE = { versionName: "3.0.4", versionCode: 96 };
+      const DEFAULT_RELEASE = { versionName: "3.0.4", versionCode: 97 };
 
       const state = {
         currentPage: 0,
@@ -2533,7 +2533,7 @@
           if (!res.ok) return;
           const data = await res.json();
           const ver = data.version || "3.0.4";
-          const code = data.versionCode || 96;
+          const code = data.versionCode || 97;
           const apkName = `TDLxHT.${ver}.apk`;
 
           document.getElementById("headerVersionLabel").textContent = `v${ver}`;
