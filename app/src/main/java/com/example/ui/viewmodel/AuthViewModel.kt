@@ -219,9 +219,6 @@ class AuthViewModel : ViewModel() {
                 db.habitDao().clearAllHabits()
                 db.habitCompletionRecordDao().clearAllRecords()
 
-                // Wipe cached AI productivity insights
-                com.example.data.service.AiIntelligenceEngine.instance.clearCache()
-
                 authRepository.signOut()
             } catch (e: Exception) {
                 SafeLog.e("AuthViewModel", "Sign out cleanup failed", e)
@@ -251,9 +248,6 @@ class AuthViewModel : ViewModel() {
                 db.subtaskDao().clearAllSubtasks()
                 db.habitDao().clearAllHabits()
                 db.habitCompletionRecordDao().clearAllRecords()
-
-                // Wipe cached AI productivity insights
-                com.example.data.service.AiIntelligenceEngine.instance.clearCache()
 
                 authRepository.signOut()
                 onComplete()

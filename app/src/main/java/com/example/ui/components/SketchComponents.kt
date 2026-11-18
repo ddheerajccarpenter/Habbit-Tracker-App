@@ -629,58 +629,6 @@ fun Modifier.bounceClick(
  * and snappy elastic rebound (1.0f) on release with MotionButtonRelease.
  * Uses GPU graphicsLayer to prevent relayout / remeasurement churn.
  */
-@OptIn(ExperimentalFoundationApi::class)
-fun Modifier.bouncyPress(
-  scaleDown: Float = 0.95f,
-  enabled: Boolean = true,
-  onLongClick: (() -> Unit)? = null,
-  onClick: (() -> Unit)? = null
-): Modifier = composed {
-  if (!enabled || (onClick == null && onLongClick == null)) return@composed this
-  val context = LocalContext.current
-  val isReduced = remember { isReducedMotionEnabled(context) }
-  val targetScale = if (isReduced) 1.0f else scaleDown
-
-  val interactionSource = remember { MutableInteractionSource() }
-  val isPressed by interactionSource.collectIsPressedAsState()
-
-  val scale by animateFloatAsState(
-    targetValue = if (isPressed) targetScale else 1f,
-    animationSpec = if (isPressed) PhysicalMotionSpecs.MotionButtonPress else PhysicalMotionSpecs.MotionButtonRelease,
-    label = "bouncyPressScale"
-  )
-  val alpha by animateFloatAsState(
-    targetValue = if (isPressed) 0.92f else 1f,
-    animationSpec = PhysicalMotionSpecs.MotionMicro,
-    label = "bouncyPressAlpha"
-  )
-
-  this
-    .graphicsLayer {
-      scaleX = scale
-      scaleY = scale
-      this.alpha = alpha
-    }
-    .glassFocusRing(interactionSource)
-    .combinedClickable(
-      interactionSource = interactionSource,
-      indication = null,
-      enabled = enabled,
-      onLongClick = onLongClick?.let { action ->
-        {
-          VibrationHelper.tick(context)
-          action()
-        }
-      },
-      onClick = {
-        onClick?.let { action ->
-          VibrationHelper.tick(context)
-          action()
-        }
-      }
-    )
-}
-
 /**
  * Optimized scroll modifier with zero GPU fill-rate overhead.
  * Removes heavy Skia Gaussian blur re-allocations to guarantee rock-solid 120 FPS scrolling.
@@ -690,79 +638,6 @@ fun Modifier.motionBlurOnScroll(
   isScrollInProgress: Boolean,
   velocityFraction: Float = 0f
 ): Modifier = this
-
-/**
- * Animated Checkmark Icon.
- * Renders an animated stroke draw (0f to 1f) and spring scale pop upon task/habit completion.
- */
-@Composable
-fun AnimatedCheckmarkIcon(
-  isCompleted: Boolean,
-  tint: Color,
-  modifier: Modifier = Modifier
-) {
-  val strokeProgress by animateFloatAsState(
-    targetValue = if (isCompleted) 1f else 0f,
-    animationSpec = PhysicalMotionSpecs.MotionCompletion,
-    label = "checkmarkProgress"
-  )
-  val checkScale by animateFloatAsState(
-    targetValue = if (isCompleted) 1f else 0.35f,
-    animationSpec = PhysicalMotionSpecs.MotionCompletion,
-    label = "checkmarkScale"
-  )
-
-  Canvas(
-    modifier = modifier
-      .size(20.dp)
-      .graphicsLayer {
-        scaleX = checkScale
-        scaleY = checkScale
-      }
-  ) {
-    if (strokeProgress > 0.05f) {
-      val w = size.width
-      val h = size.height
-
-      val p1 = Offset(w * 0.22f, h * 0.52f)
-      val p2 = Offset(w * 0.42f, h * 0.74f)
-      val p3 = Offset(w * 0.78f, h * 0.28f)
-
-      val seg1 = kotlin.math.hypot(p2.x - p1.x, p2.y - p1.y)
-      val seg2 = kotlin.math.hypot(p3.x - p2.x, p3.y - p2.y)
-      val total = seg1 + seg2
-      val currentLen = total * strokeProgress
-      val strokeWidth = 2.2.dp.toPx()
-
-      if (currentLen <= seg1) {
-        val f = currentLen / seg1
-        drawLine(
-          color = tint,
-          start = p1,
-          end = Offset(p1.x + (p2.x - p1.x) * f, p1.y + (p2.y - p1.y) * f),
-          strokeWidth = strokeWidth,
-          cap = StrokeCap.Round
-        )
-      } else {
-        drawLine(
-          color = tint,
-          start = p1,
-          end = p2,
-          strokeWidth = strokeWidth,
-          cap = StrokeCap.Round
-        )
-        val f2 = (currentLen - seg1) / seg2
-        drawLine(
-          color = tint,
-          start = p2,
-          end = Offset(p2.x + (p3.x - p2.x) * f2, p2.y + (p3.y - p2.y) * f2),
-          strokeWidth = strokeWidth,
-          cap = StrokeCap.Round
-        )
-      }
-    }
-  }
-}
 
 /**
  * Lightweight Floating Undo Confirmation Pill.
@@ -1047,30 +922,6 @@ fun Modifier.glassSheen(
         strokeWidth = 1.dp.toPx()
       )
     }
-}
-
-@Composable
-fun SketchCard(
-  modifier: Modifier = Modifier,
-  cornerRadius: Dp = OuterCornerRadius,
-  backgroundColor: Color = CardBackground,
-  borderColor: Color = CardBorder,
-  borderWidth: Dp = 0.75.dp,
-  elevation: Dp = 2.dp,
-  onClick: (() -> Unit)? = null,
-  content: @Composable () -> Unit
-) {
-  LiquidGlassCard(
-    modifier = modifier,
-    cornerRadius = cornerRadius,
-    backgroundColor = backgroundColor,
-    borderColor = borderColor,
-    borderWidth = borderWidth,
-    elevation = elevation,
-    onClick = onClick
-  ) {
-    content()
-  }
 }
 
 /**
@@ -1888,28 +1739,6 @@ fun GlassFilterChip(
 }
 
 /**
- * Backward compatibility alias for GlassFilterChip.
- */
-@Composable
-fun SketchFilterChip(
-  label: String,
-  selected: Boolean = false,
-  isSelected: Boolean = selected,
-  onClick: () -> Unit,
-  modifier: Modifier = Modifier,
-  testTag: String? = null
-) {
-  GlassFilterChip(
-    label = label,
-    selected = selected,
-    isSelected = isSelected,
-    onClick = onClick,
-    modifier = modifier,
-    testTag = testTag
-  )
-}
-
-/**
  * Reusable Minimal Empty State pattern.
  */
 @Composable
@@ -2019,92 +1848,6 @@ fun GlassCheckbox(
       contentDescription = contentDescription
     )
   }
-}
-
-/**
- * Backward compatibility alias for GlassCheckbox.
- */
-@Composable
-fun SketchCheckbox(
-  checked: Boolean,
-  onCheckedChange: (Boolean) -> Unit,
-  modifier: Modifier = Modifier,
-  sizeDp: Dp = 24.dp,
-  contentDescription: String = "Completion"
-) {
-  GlassCheckbox(
-    checked = checked,
-    onCheckedChange = onCheckedChange,
-    modifier = modifier,
-    sizeDp = sizeDp,
-    contentDescription = contentDescription
-  )
-}
-
-@Composable
-fun SketchProgressBar(
-  progress: Float,
-  modifier: Modifier = Modifier,
-  height: Dp = 10.dp
-) {
-  LiquidGlassLinearProgress(
-    progress = progress,
-    modifier = modifier,
-    height = height
-  )
-}
-
-/**
- * Liquid Glass Input Field (glass.md Section 02.7).
- * Renders authentic translucent glass trough with specular hairline rim.
- */
-@Composable
-fun SketchInputField(
-  value: String,
-  onValueChange: (String) -> Unit,
-  placeholder: String,
-  modifier: Modifier = Modifier,
-  singleLine: Boolean = true,
-  minLines: Int = 1,
-  textStyle: TextStyle? = null,
-  backgroundColor: Color? = null,
-  keyboardOptions: KeyboardOptions = KeyboardOptions.Default
-) {
-  GlassInput(
-    value = value,
-    onValueChange = onValueChange,
-    placeholder = placeholder,
-    modifier = modifier,
-    singleLine = singleLine,
-    minLines = minLines,
-    textStyle = textStyle,
-    keyboardOptions = keyboardOptions,
-    testTag = "input_$placeholder"
-  )
-}
-
-/**
- * Standardized Liquid Glass Search Bar component.
- * Uses refined translucent glass input surface with smooth focus state and clear action.
- */
-@Composable
-fun SketchSearchBar(
-  query: String,
-  onQueryChange: (String) -> Unit,
-  modifier: Modifier = Modifier,
-  placeholder: String = "Search tasks, habits, notes...",
-  onClear: () -> Unit = { onQueryChange("") },
-  leadingIcon: @Composable (() -> Unit)? = null
-) {
-  GlassInput(
-    value = query,
-    onValueChange = onQueryChange,
-    modifier = modifier,
-    placeholder = placeholder,
-    isSearch = true,
-    leadingIcon = leadingIcon,
-    onClear = onClear
-  )
 }
 
 /**
@@ -2519,51 +2262,6 @@ fun CircularProgressGauge(
         )
       )
     }
-  }
-}
-
-/**
- * Compact priority pill badge with Ink Wash tints.
- */
-@Composable
-fun PriorityPill(
-  priority: com.example.data.model.TaskPriority,
-  modifier: Modifier = Modifier
-) {
-  val isDark = LocalAppColors.current.isDark
-  val priorityAccent = LocalAppColors.current.oklchPrimary
-  val (pillColor, textColor, label) = when (priority) {
-    com.example.data.model.TaskPriority.HIGH -> {
-      if (isDark) Triple(InkWashCharcoalElevated, InkWashIvory, "High")
-      else Triple(InkWashCharcoal, InkWashIvory, "High")
-    }
-    com.example.data.model.TaskPriority.MEDIUM -> {
-      if (isDark) Triple(priorityAccent.copy(alpha = 0.20f), priorityAccent, "Med")
-      else Triple(priorityAccent.copy(alpha = 0.12f), priorityAccent, "Med")
-    }
-    com.example.data.model.TaskPriority.LOW -> {
-      if (isDark) Triple(InkWashMist.copy(alpha = 0.15f), InkWashMist, "Low")
-      else Triple(InkWashMist.copy(alpha = 0.25f), InkWashCharcoal, "Low")
-    }
-  }
-
-  Box(
-    modifier = modifier
-      .clip(RoundedCornerShape(6.dp))
-      .background(pillColor)
-      .border(0.8.dp, textColor.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
-      .padding(horizontal = 7.dp, vertical = 2.5.dp),
-    contentAlignment = Alignment.Center
-  ) {
-    Text(
-      text = label,
-      style = TextStyle(
-        fontFamily = StrongFontFamily,
-        fontSize = 10.sp,
-        fontWeight = FontWeight.Bold,
-        color = textColor
-      )
-    )
   }
 }
 

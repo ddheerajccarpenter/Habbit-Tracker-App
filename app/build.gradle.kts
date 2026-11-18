@@ -43,8 +43,8 @@ android {
     applicationId = "com.aistudio.habittask.wvnk"
     minSdk = 24
     targetSdk = 35
-    versionCode = 101
-    versionName = "3.0.8"
+    versionCode = 102
+    versionName = "3.0.9"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -224,22 +224,9 @@ tasks.register("syncReleaseApk") {
       }
       val apkSha256 = digest.digest().joinToString("") { "%02x".format(it) }
 
-      // Synchronize signed Google Play Store Android App Bundle (.aab)
-      val releaseAab = file("${layout.buildDirectory.get()}/outputs/bundle/release/app-release.aab")
-      val targetAabName = "TDLxHT.$ver.aab"
-      val genericAabName = "TDlxHT.aab"
-      if (releaseAab.exists()) {
-        val allowedAabNames = setOf(targetAabName, genericAabName)
-        rootDir.listFiles { f -> f.isFile && f.name.endsWith(".aab") && f.name !in allowedAabNames }?.forEach { it.delete() }
-        file("$rootDir/dist").listFiles { f -> f.isFile && f.name.endsWith(".aab") && f.name !in allowedAabNames }?.forEach { it.delete() }
-        releaseAab.copyTo(File(rootDir, targetAabName), overwrite = true)
-        releaseAab.copyTo(File(rootDir, genericAabName), overwrite = true)
-        if (distDir.exists()) {
-          releaseAab.copyTo(File(distDir, targetAabName), overwrite = true)
-          releaseAab.copyTo(File(distDir, genericAabName), overwrite = true)
-        }
-        println("SUCCESS: Enforced $targetAabName & $genericAabName for Google Play Store.")
-      }
+      // Clean any lingering .aab bundles per Mandatory Play Store Bundle Policy
+      rootDir.listFiles { f -> f.isFile && f.name.endsWith(".aab") }?.forEach { it.delete() }
+      file("$rootDir/dist").listFiles { f -> f.isFile && f.name.endsWith(".aab") }?.forEach { it.delete() }
 
       // Automatically generate version.json for dynamic web auto-fetching pointing to high-speed CDN with GitHub Release fallback
       val versionJsonContent = """
