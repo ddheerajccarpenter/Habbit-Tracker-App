@@ -23,6 +23,7 @@ Thumbs.db
 scratch/
 *.aab
 *.apk
+md/
 # Markdown Policy: ONLY README.md is allowed to be published
 **/*.md
 *.md
