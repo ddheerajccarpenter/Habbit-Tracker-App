@@ -22,7 +22,12 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.windowInsetsPadding
 import com.example.AppDestination
 import dev.chrisbanes.haze.HazeState
@@ -88,50 +93,8 @@ fun LiquidGlassTopAppBar(
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
-            .then(
-                if (hazeState != null) {
-                    Modifier.liquidGlass(
-                        variant = LiquidGlassVariant.Subtle,
-                        shape = shape,
-                        borderWidth = 0.75.dp
-                    )
-                } else {
-                    Modifier.cloudy(radius = 24).background(
-                        if (isDark) com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = 0.85f) else Color(0xEBFFFFFF)
-                    )
-                }
-            )
-            .then(
-                if (shape == RectangleShape) {
-                    Modifier.drawWithCache {
-                        val strokePx = 0.75.dp.toPx()
-                        val bottomRimBrush = Brush.horizontalGradient(
-                            colors = if (isDark) {
-                                listOf(
-                                    Color.White.copy(alpha = 0.08f),
-                                    Color.White.copy(alpha = 0.22f),
-                                    Color.White.copy(alpha = 0.08f)
-                                )
-                            } else {
-                                listOf(
-                                    Color.White.copy(alpha = 0.20f),
-                                    Color.White.copy(alpha = 0.55f),
-                                    Color.White.copy(alpha = 0.20f)
-                                )
-                            }
-                        )
-                        onDrawWithContent {
-                            drawContent()
-                            drawLine(
-                                brush = bottomRimBrush,
-                                start = androidx.compose.ui.geometry.Offset(0f, size.height),
-                                end = androidx.compose.ui.geometry.Offset(size.width, size.height),
-                                strokeWidth = strokePx
-                            )
-                        }
-                    }
-                } else Modifier
-            )
+            .background(if (isDark) Color(0xFF000000) else Color(0xFFFFFFFF), shape)
+            .border(0.5.dp, if (isDark) Color(0xFF292929) else Color(0xFFE0E0E0), shape)
             .padding(horizontal = 14.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -253,11 +216,11 @@ fun LiquidGlassLinearProgress(
     )
 
     val resolvedTrackColor = trackColor ?: if (isDark) {
-        com.example.ui.theme.CanonicalGlassFillBaseDark.copy(alpha = 0.13f)
+        Color(0xFF1A1A1A)
     } else {
-        Color(0x22000000)
+        Color(0xFFE0E0E0)
     }
-    val resolvedProgressColor = progressColor ?: LocalAppColors.current.oklchPrimary
+    val resolvedProgressColor = progressColor ?: (if (isDark) Color(0xFFF2F2F2) else Color(0xFF111111))
 
     Box(
         modifier = modifier
@@ -265,44 +228,24 @@ fun LiquidGlassLinearProgress(
             .fillMaxWidth()
             .clip(shape)
             .background(resolvedTrackColor)
-            .liquidGlassRim(shape, isDark, 0.75.dp, variant = LiquidGlassVariant.Subtle)
     ) {
         if (animatedProgress > 0f) {
-            val fluidIndicatorBrush = Brush.horizontalGradient(
-                listOf(
-                    resolvedProgressColor.copy(alpha = 0.85f),
-                    resolvedProgressColor
-                )
-            )
             Box(
                 modifier = Modifier
                     .fillMaxWidth(animatedProgress)
                     .fillMaxHeight()
                     .clip(shape)
-                    .background(fluidIndicatorBrush)
-                    .drawWithCache {
-                        // Overhead specular sheen on top half of the fluid indicator
-                        val highlightBrush = Brush.verticalGradient(
-                            0f to Color.White.copy(alpha = 0.45f),
-                            0.5f to Color.White.copy(alpha = 0.10f),
-                            1f to Color.Transparent
-                        )
-                        onDrawWithContent {
-                            drawContent()
-                            drawRect(highlightBrush)
-                        }
-                    }
+                    .background(resolvedProgressColor)
             )
         }
     }
 }
 
 /**
- * Authentic Apple iOS 26 Liquid Glass Floating Navigation Bar (glass.md Section 02.5 & 03):
- * 48dp floating glass dock in a 56dp container with navigation bar insets and 8dp bottom padding.
- * Features live Haze backdrop blur, AGSL RuntimeShader light bending with 10% chromatic dispersion,
- * razor-sharp 0.75dp specular hairline rim, 440ms traveling specular light sweep beam, 300ms tap bloom flare,
- * and elevated optical lens pill with dual-spring 120Hz drag kinetics.
+ * Minimal Monochromatic Floating Capsule Navigation Dock (M3 Strict Dark Mode):
+ * 52dp height floating capsule with 4 icon-only destinations (Home, Calendar, Insights, Settings),
+ * understated matte charcoal selection pill (#4E4E4E), soft white active icon (#F2F2F2),
+ * and muted grey inactive icon (#929292).
  */
 @Composable
 fun GlassNav(
@@ -317,31 +260,61 @@ fun GlassNav(
     onDragOffset: ((Float) -> Unit)? = null,
     onDragReleased: ((Int) -> Unit)? = null
 ) {
-    Column(
+    val context = LocalContext.current
+
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(bottom = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(bottom = 12.dp),
+        contentAlignment = Alignment.Center
     ) {
-        com.example.ui.components.LiquidGlassNavigationDock(
-            destinations = destinations.take(4),
-            selectedTab = selectedTab.coerceIn(0, 3),
-            externalPageOffsetProvider = externalPageOffsetProvider,
-            externalPageOffset = externalPageOffset,
-            onDragOffset = onDragOffset,
-            onDragReleased = onDragReleased,
-            onDestinationSelected = onDestinationSelected,
-            hazeState = hazeState,
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        )
+                .wrapContentWidth()
+                .height(52.dp)
+                .clip(RoundedCornerShape(26.dp))
+                .background(Color(0xFF1A1A1A))
+                .border(1.dp, Color(0xFF292929), RoundedCornerShape(26.dp))
+                .padding(horizontal = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                destinations.take(4).forEachIndexed { index, destination ->
+                    val isSelected = index == selectedTab
+                    Box(
+                        modifier = Modifier
+                            .height(40.dp)
+                            .width(56.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(if (isSelected) Color(0xFF4E4E4E) else Color.Transparent)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(bounded = true, color = Color.White)
+                            ) {
+                                com.example.util.HapticManager.lightTap(context)
+                                onDestinationSelected(destination)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = if (isSelected) destination.iconFilled else destination.iconOutlined,
+                            contentDescription = destination.label,
+                            tint = if (isSelected) Color(0xFFF2F2F2) else Color(0xFF929292),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
 /**
- * Canonical alias for GlassNav matching the LiquidGlass naming system.
+ * Canonical alias for GlassNav matching the design token system.
  */
 @Composable
 fun LiquidGlassNav(

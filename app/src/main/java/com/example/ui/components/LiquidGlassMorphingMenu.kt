@@ -162,27 +162,9 @@ fun LiquidGlassQuickCreateMenu(
         ) + fadeOut(tween(120))
       ) {
         val glassBrush = if (isDark) {
-          Brush.verticalGradient(
-            listOf(
-              Color(0xD0242834),
-              Color(0xD0181A22)
-            )
-          )
+          SolidColor(Color(0xFF1A1A1A))
         } else {
-          Brush.verticalGradient(
-            listOf(
-              Color(0xF0FFFFFF),
-              Color(0xE6F8F6F2)
-            )
-          )
-        }
-
-        val cardModifier = if (hazeState != null) {
-          Modifier.clip(menuShape).hazeEffect(state = hazeState) {
-            blurRadius = 20.dp
-          }
-        } else {
-          Modifier.clip(menuShape).cloudy(radius = 20)
+          SolidColor(Color(0xFFFFFFFF))
         }
 
         Box(
@@ -194,15 +176,11 @@ fun LiquidGlassQuickCreateMenu(
               scaleX = activeScale
               scaleY = activeScale
               alpha = activeAlpha
-              shadowElevation = (if (isDark) 24.dp else 16.dp).toPx()
-              spotShadowColor = if (isDark) Color.Black.copy(alpha = 0.60f) else Color.Black.copy(alpha = 0.14f)
-              ambientShadowColor = if (isDark) Color.Black.copy(alpha = 0.35f) else Color.Black.copy(alpha = 0.06f)
               shape = menuShape
               clip = false
             }
-            .then(cardModifier)
             .background(glassBrush, menuShape)
-            .liquidGlassRim(menuShape, isDark, 1.dp)
+            .border(1.dp, if (isDark) Color(0xFF292929) else Color(0xFFE5E5EA), menuShape)
             .padding(22.dp)
         ) {
           Column(

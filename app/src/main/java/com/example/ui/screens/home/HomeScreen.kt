@@ -234,15 +234,25 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            Text(
-              text = "Today",
-              style = TextStyle(
-                fontFamily = StrongFontFamily,
-                fontSize = 34.sp,
-                fontWeight = FontWeight.Bold,
-                color = InkPrimary
+            Column {
+              Text(
+                text = "Today",
+                style = TextStyle(
+                  fontFamily = StrongFontFamily,
+                  fontSize = 32.sp,
+                  fontWeight = FontWeight.Bold,
+                  color = Color(0xFFF2F2F2)
+                )
               )
-            )
+              Text(
+                text = todayFormattedDate,
+                style = TextStyle(
+                  fontSize = 14.sp,
+                  color = Color(0xFF929292)
+                ),
+                modifier = Modifier.padding(top = 2.dp)
+              )
+            }
 
             Row(
               verticalAlignment = Alignment.CenterVertically,
@@ -256,87 +266,63 @@ fun HomeScreen(
                   Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search",
-                    tint = InkSecondary,
+                    tint = Color(0xFF929292),
                     modifier = Modifier.size(20.dp)
                   )
                 }
               }
 
-              IconButton(
-                onClick = {
-                  if (onNavigateToSettings != null) {
-                    onNavigateToSettings()
-                  } else {
-                    onNavigateToAddTask()
-                  }
-                },
-                modifier = Modifier.size(40.dp).testTag("home_settings_button")
-              ) {
-                Icon(
-                  imageVector = Icons.Default.Settings,
-                  contentDescription = "Settings",
-                  tint = InkSecondary,
-                  modifier = Modifier.size(20.dp)
-                )
+              Box {
+                IconButton(
+                  onClick = { showHomeMenu = true },
+                  modifier = Modifier.size(40.dp).testTag("home_options_button")
+                ) {
+                  Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Home options",
+                    tint = Color(0xFF929292),
+                    modifier = Modifier.size(20.dp)
+                  )
+                }
+                androidx.compose.material3.DropdownMenu(
+                  expanded = showHomeMenu,
+                  onDismissRequest = { showHomeMenu = false },
+                  modifier = Modifier.background(Color(0xFF1A1A1A))
+                ) {
+                  androidx.compose.material3.DropdownMenuItem(
+                    text = {
+                      Text(
+                        if (isDashboardEditMode) "Finish customization" else "Customize dashboard",
+                        style = TextStyle(fontSize = 14.sp, color = InkPrimary)
+                      )
+                    },
+                    onClick = {
+                      showHomeMenu = false
+                      if (isDashboardEditMode) {
+                        DashboardLayoutManager.saveLayout(context, editOrder, editVisibility)
+                      }
+                      isDashboardEditMode = !isDashboardEditMode
+                    },
+                    modifier = Modifier.testTag("home_edit_mode_btn")
+                  )
+                  androidx.compose.material3.DropdownMenuItem(
+                    text = {
+                      Text(
+                        if (showOverview) "Hide daily overview" else "Show daily overview",
+                        style = TextStyle(fontSize = 14.sp, color = InkPrimary)
+                      )
+                    },
+                    onClick = {
+                      showOverview = !showOverview
+                      showHomeMenu = false
+                    }
+                  )
+                }
               }
             }
           }
-
-          // Date subtitle
-          Text(
-            text = todayFormattedDate,
-            style = TextStyle(
-              fontSize = 15.sp,
-              color = InkSecondary
-            ),
-            modifier = Modifier.padding(top = 2.dp)
-          )
-
-          // Hidden menu logic (triggered via long-press or MoreVert, kept minimal)
-          Box {
-            IconButton(
-              onClick = { showHomeMenu = true },
-              modifier = Modifier.size(32.dp).testTag("home_options_button")
-            ) {
-              Icon(Icons.Default.MoreVert, contentDescription = "Home options", tint = Color(0xFF929292), modifier = Modifier.size(16.dp))
-            }
-            androidx.compose.material3.DropdownMenu(
-              expanded = showHomeMenu,
-              onDismissRequest = { showHomeMenu = false },
-              modifier = Modifier.background(Color(0xFF1A1A1A))
-            ) {
-              androidx.compose.material3.DropdownMenuItem(
-                text = {
-                  Text(
-                    if (isDashboardEditMode) "Finish customization" else "Customize dashboard",
-                    style = TextStyle(fontSize = 14.sp, color = InkPrimary)
-                  )
-                },
-                onClick = {
-                  showHomeMenu = false
-                  if (isDashboardEditMode) {
-                    DashboardLayoutManager.saveLayout(context, editOrder, editVisibility)
-                  }
-                  isDashboardEditMode = !isDashboardEditMode
-                },
-                modifier = Modifier.testTag("home_edit_mode_btn")
-              )
-              androidx.compose.material3.DropdownMenuItem(
-                text = {
-                  Text(
-                    if (showOverview) "Hide today's overview" else "Today's overview",
-                    style = TextStyle(fontSize = 14.sp, color = InkPrimary)
-                  )
-                },
-                onClick = {
-                  showOverview = !showOverview
-                  showHomeMenu = false
-                }
-              )
-            }
-          }
         }
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
       }
 
       if (isDashboardEditMode) {
@@ -663,67 +649,117 @@ fun HomeScreen(
         val overviewEnabled = sectionVisibility[DashboardSection.BENTO_HERO] != false ||
           sectionVisibility[DashboardSection.QUICK_METRICS] != false
         if (showOverview && overviewEnabled) {
+          val completedTasksCount = todayTasks.count { it.isCompleted }
+          val totalTasksCount = todayTasks.size
+          val completedHabitsCount = todayHabits.count { completedHabitIds.contains(it.id) }
+          val totalHabitsCount = todayHabits.size
+          val totalItems = totalTasksCount + totalHabitsCount
+          val completedItems = completedTasksCount + completedHabitsCount
+          val progressRatio = if (totalItems > 0) completedItems.toFloat() / totalItems.toFloat() else 0f
+          val progressPercent = (progressRatio * 100).toInt()
+
           item {
-            // Flat overview - single line of stats
-            Text(
-              text = "${todayTasks.count { it.isCompleted }}/${todayTasks.size} tasks · ${todayHabits.count { completedHabitIds.contains(it.id) }}/${todayHabits.size} habits · ${summary.maxStreak}d streak",
-              style = TextStyle(
-                fontSize = 13.sp,
-                color = InkSecondary
-              ),
-              modifier = Modifier.padding(vertical = 8.dp)
-            )
-            HorizontalDivider(thickness = 0.5.dp, color = Color(0xFF292929))
-            Spacer(modifier = Modifier.height(10.dp))
+            Column(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+            ) {
+              Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+              ) {
+                Text(
+                  text = if (totalItems > 0) "$completedItems of $totalItems completed" else "All clear for today",
+                  style = TextStyle(
+                    fontSize = 13.sp,
+                    color = Color(0xFF929292)
+                  )
+                )
+                if (totalItems > 0) {
+                  Text(
+                    text = "$progressPercent%",
+                    style = TextStyle(
+                      fontSize = 13.sp,
+                      fontWeight = FontWeight.SemiBold,
+                      color = Color(0xFFF2F2F2)
+                    )
+                  )
+                }
+              }
+              Spacer(modifier = Modifier.height(8.dp))
+              Box(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .height(4.dp)
+                  .clip(RoundedCornerShape(2.dp))
+                  .background(Color(0xFF1A1A1A))
+              ) {
+                val animatedRatio by animateFloatAsState(
+                  targetValue = progressRatio,
+                  animationSpec = spring(dampingRatio = 0.8f, stiffness = 400f),
+                  label = "homeProgressRatio"
+                )
+                Box(
+                  modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(animatedRatio)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(Color(0xFFF2F2F2))
+                )
+              }
+              Spacer(modifier = Modifier.height(10.dp))
+              HorizontalDivider(thickness = 0.5.dp, color = Color(0xFF292929))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
           }
         }
 
         if (sectionVisibility[DashboardSection.DAILY_PLANNER] != false) {
 
-      // ── Minimal Segmented Control ──
+      // ── Refined Segmented Control ──
       item {
-        Row(
+        Box(
           modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-          horizontalArrangement = Arrangement.spacedBy(24.dp)
+            .height(38.dp)
+            .clip(RoundedCornerShape(19.dp))
+            .background(Color(0xFF1A1A1A))
+            .border(1.dp, Color(0xFF292929), RoundedCornerShape(19.dp))
+            .padding(3.dp)
         ) {
-          listOf("All", "Tasks", "Habits").forEachIndexed { index, label ->
-            val isSelected = selectedTab == index
-            val underlineColor = if (isSelected) InkPrimary else Color.Transparent
-            Column(
-              horizontalAlignment = Alignment.CenterHorizontally,
-              modifier = Modifier
-                .clickable { selectedTab = index }
-                .drawBehind {
-                  if (isSelected) {
-                    val strokeWidth = 1.dp.toPx()
-                    drawLine(
-                      color = underlineColor,
-                      start = Offset(0f, size.height),
-                      end = Offset(size.width, size.height),
-                      strokeWidth = strokeWidth
-                    )
-                  }
-                }
-                .padding(bottom = 8.dp)
-            ) {
-              Text(
-                text = label,
-                style = TextStyle(
-                  fontSize = 15.sp,
-                  fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                  color = if (isSelected) InkPrimary else Color(0xFF929292)
+          Row(modifier = Modifier.fillMaxSize()) {
+            listOf("All", "Habits", "Tasks").forEachIndexed { index, label ->
+              val isSelected = selectedTab == index
+              Box(
+                modifier = Modifier
+                  .weight(1f)
+                  .fillMaxHeight()
+                  .clip(RoundedCornerShape(16.dp))
+                  .background(if (isSelected) Color(0xFF4E4E4E) else Color.Transparent)
+                  .clickable {
+                    com.example.util.HapticManager.lightTap(context)
+                    selectedTab = index
+                  },
+                contentAlignment = Alignment.Center
+              ) {
+                Text(
+                  text = label,
+                  style = TextStyle(
+                    fontSize = 13.sp,
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                    color = if (isSelected) Color(0xFFF2F2F2) else Color(0xFF929292)
+                  )
                 )
-              )
+              }
             }
           }
         }
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
       }
 
       // TODAY'S TASKS SECTION
-      if (selectedTab == 0 || selectedTab == 1) {
+      if (selectedTab == 0 || selectedTab == 2) {
         item {
           Text(
             text = "TASKS",
@@ -787,7 +823,7 @@ fun HomeScreen(
 
       // TODAY'S HABITS SECTION
       if (sectionVisibility[DashboardSection.HABIT_STREAKS] != false) {
-      if (selectedTab == 0 || selectedTab == 2) {
+      if (selectedTab == 0 || selectedTab == 1) {
         item {
           Text(
             text = "HABITS",

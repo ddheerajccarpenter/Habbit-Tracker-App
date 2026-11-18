@@ -120,6 +120,7 @@ import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.Composable
@@ -231,10 +232,12 @@ enum class AppDestination(
   val iconOutlined: ImageVector,
   @param:RawRes val animRes: Int
 ) {
-  TODAY("Today", Icons.Rounded.Today, Icons.Outlined.Today, R.raw.anim_today),
-  PRODUCTIVITY("Tasks", Icons.Rounded.Checklist, Icons.Outlined.Checklist, R.raw.anim_productivity),
-  HABITS("Habits", Icons.Rounded.Loop, Icons.Outlined.Loop, R.raw.anim_tools),
-  INSIGHTS("Insights", Icons.Rounded.Insights, Icons.Outlined.Insights, R.raw.anim_insights)
+  TODAY("Home", Icons.Filled.Home, Icons.Outlined.Home, R.raw.anim_today),
+  CALENDAR("Calendar", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, R.raw.anim_today),
+  INSIGHTS("Insights", Icons.Filled.Insights, Icons.Outlined.Insights, R.raw.anim_insights),
+  SETTINGS("Settings", Icons.Filled.Settings, Icons.Outlined.Settings, R.raw.anim_today),
+  PRODUCTIVITY("Tasks", Icons.Filled.Home, Icons.Outlined.Home, R.raw.anim_productivity),
+  HABITS("Habits", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, R.raw.anim_tools)
 }
 
 private var hasCompletedProcessColdLaunch = false
@@ -392,9 +395,9 @@ fun MainApp(
   val destinations = remember {
     listOf(
       AppDestination.TODAY,
-      AppDestination.PRODUCTIVITY,
-      AppDestination.HABITS,
-      AppDestination.INSIGHTS
+      AppDestination.CALENDAR,
+      AppDestination.INSIGHTS,
+      AppDestination.SETTINGS
     )
   }
 
@@ -565,10 +568,33 @@ fun MainApp(
                         onQuickAdd = { navController.navigate(AppNavDestination.QuickCreate) },
                         onTaskClick = { navController.navigate(AppNavDestination.TaskDetail(task = it)) },
                         onHabitClick = { navController.navigate(AppNavDestination.HabitDetail(habit = it)) },
-                        onNavigateToSettings = { navController.navigate(AppNavDestination.Settings) },
+                        onNavigateToSettings = { navController.switchTab(3) },
                         onNavigateToSearch = { navController.navigate(AppNavDestination.Search) },
                         onNavigateToTools = { navController.navigate(AppNavDestination.Tools) },
                         onOpenFocusTimer = { navController.navigate(AppNavDestination.FocusTimer(25)) }
+                      )
+                    }
+                    AppDestination.CALENDAR -> {
+                      CalendarScreen(
+                        viewModel = viewModel,
+                        onNavigateToAddTask = { navController.navigate(AppNavDestination.TaskDetail()) },
+                        onTaskClick = { navController.navigate(AppNavDestination.TaskDetail(task = it)) },
+                        onHabitClick = { navController.navigate(AppNavDestination.HabitDetail(habit = it)) }
+                      )
+                    }
+                    AppDestination.INSIGHTS -> {
+                      ReportsScreen(
+                        onBack = null,
+                        onNavigateToAddTask = { navController.navigate(AppNavDestination.TaskDetail()) }
+                      )
+                    }
+                    AppDestination.SETTINGS -> {
+                      SettingsScreen(
+                        viewModel = viewModel,
+                        authViewModel = authViewModel,
+                        onBack = { navController.switchTab(0) },
+                        onNavigateToDiagnostics = { navController.navigate(AppNavDestination.Diagnostics) },
+                        onNavigateToTools = { navController.navigate(AppNavDestination.Tools) }
                       )
                     }
                     AppDestination.PRODUCTIVITY -> {
@@ -591,13 +617,38 @@ fun MainApp(
                         onBack = { navController.switchTab(0) }
                       )
                     }
-                    AppDestination.INSIGHTS -> {
-                      ReportsScreen(
-                        onBack = null,
-                        onNavigateToAddTask = { navController.navigate(AppNavDestination.TaskDetail()) }
-                      )
-                    }
                   }
+                }
+              }
+
+              // Separate Dedicated Floating Action Button (Add)
+              Box(
+                modifier = Modifier
+                  .align(Alignment.BottomEnd)
+                  .windowInsetsPadding(WindowInsets.navigationBars)
+                  .padding(bottom = 76.dp, end = 20.dp)
+              ) {
+                Box(
+                  modifier = Modifier
+                    .size(54.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF1A1A1A))
+                    .border(1.dp, Color(0xFF292929), CircleShape)
+                    .clickable(
+                      interactionSource = remember { MutableInteractionSource() },
+                      indication = ripple(bounded = true, color = Color.White)
+                    ) {
+                      com.example.util.HapticManager.lightTap(context)
+                      navController.navigate(AppNavDestination.QuickCreate)
+                    },
+                  contentAlignment = Alignment.Center
+                ) {
+                  Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Quick Create",
+                    tint = Color(0xFFF2F2F2),
+                    modifier = Modifier.size(26.dp)
+                  )
                 }
               }
 

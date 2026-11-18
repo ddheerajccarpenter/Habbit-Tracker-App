@@ -664,12 +664,8 @@ fun UndoConfirmationPill(
     Box(
       modifier = Modifier
         .padding(horizontal = 20.dp, vertical = 12.dp)
-        .fluidLensedGlass(
-          shape = CircleShape,
-          elevation = 10.dp,
-          borderWidth = 0.75.dp,
-          isElevated = true
-        )
+        .background(Color(0xFF1A1A1A), CircleShape)
+        .border(0.75.dp, Color(0xFF292929), CircleShape)
         .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
       Row(

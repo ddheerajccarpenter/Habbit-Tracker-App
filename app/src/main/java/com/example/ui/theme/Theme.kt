@@ -16,12 +16,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
 // =========================================================================
-// Standardized TDlxHT 24dp Outer / 12dp Inner Geometry System
+// M3 Refined Geometry System (Controlled, non-oversized corner radii)
 // =========================================================================
-val OuterCornerRadius = 24.dp
-val InnerCornerRadius = 12.dp
-val OuterCornerShape = RoundedCornerShape(24.dp)
-val InnerCornerShape = RoundedCornerShape(12.dp)
+val OuterCornerRadius = 14.dp
+val InnerCornerRadius = 8.dp
+val OuterCornerShape = RoundedCornerShape(14.dp)
+val InnerCornerShape = RoundedCornerShape(8.dp)
 val FloatingDockShape = CircleShape
 val PlusButtonShape = CircleShape
 

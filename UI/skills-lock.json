@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "skills": {
+    "material-3": {
+      "source": "hamen/material-3-skill",
+      "commit": "14385f2bf3804d8779f8b4db2604211f1e70b4c1",
+      "sourceType": "github",
+      "skillPath": "skills/material-3/SKILL.md",
+      "computedHash": "eb072deb6fb42a9e3ce1853ffd8420adb99dfbe1d6327bc22c5ad47edb77f56c"
+    },
+    "material-design-3": {
+      "source": "gdlbo/material-skill",
+      "commit": "6ab265267c0a5512c43e2d1c27abd6bc2d5de785",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "9cb4a5f4d70c09395caee894fe18c40a3d1588552ef3cf8f051bdcb9d31aa2f9"
+    }
+  }
+}
