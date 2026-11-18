@@ -234,7 +234,7 @@ enum class AppDestination(
 ) {
   TODAY("Home", Icons.Filled.Home, Icons.Outlined.Home, R.raw.anim_today),
   CALENDAR("Calendar", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, R.raw.anim_today),
-  INSIGHTS("Insights", Icons.Filled.Insights, Icons.Outlined.Insights, R.raw.anim_insights),
+  INSIGHTS("Insights", Icons.Rounded.Insights, Icons.Outlined.Insights, R.raw.anim_insights),
   SETTINGS("Settings", Icons.Filled.Settings, Icons.Outlined.Settings, R.raw.anim_today),
   PRODUCTIVITY("Tasks", Icons.Filled.Home, Icons.Outlined.Home, R.raw.anim_productivity),
   HABITS("Habits", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, R.raw.anim_tools)
@@ -638,7 +638,7 @@ fun MainApp(
                       interactionSource = remember { MutableInteractionSource() },
                       indication = ripple(bounded = true, color = Color.White)
                     ) {
-                      com.example.util.HapticManager.lightTap(context)
+                      com.example.util.HapticManager.buttonTap(context)
                       navController.navigate(AppNavDestination.QuickCreate)
                     },
                   contentAlignment = Alignment.Center

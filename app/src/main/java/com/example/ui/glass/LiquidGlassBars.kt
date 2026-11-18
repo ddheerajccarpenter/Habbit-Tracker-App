@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -295,7 +296,7 @@ fun GlassNav(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = ripple(bounded = true, color = Color.White)
                             ) {
-                                com.example.util.HapticManager.lightTap(context)
+                                com.example.util.HapticManager.buttonTap(context)
                                 onDestinationSelected(destination)
                             },
                         contentAlignment = Alignment.Center
