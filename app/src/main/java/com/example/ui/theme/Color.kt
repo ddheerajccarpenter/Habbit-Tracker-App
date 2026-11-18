@@ -9,21 +9,21 @@ import androidx.compose.ui.graphics.Color
 // Content surfaces are opaque for reliable contrast; optical controls retain translucency.
 // =========================================================================
 
-// Canonical Dark Tokens (designglass.md §02B — Midnight Onyx / Obsidian Slate Environment)
-val CanonicalCanvasDark = Color(0xFF090D14)
-val CanonicalCanvasSecondaryDark = Color(0xFF111724)
-val CanonicalGlassFillBaseDark = Color(0xFF161E2E)
-val CanonicalGlassFillElevatedDark = Color(0xFF1E283D)
-val CanonicalGlassFillSubtleDark = Color(0xFF131926)
+// Canonical Dark Tokens (Monochromatic Pure Black Environment)
+val CanonicalCanvasDark = Color(0xFF000000)
+val CanonicalCanvasSecondaryDark = Color(0xFF111111)
+val CanonicalGlassFillBaseDark = Color(0xFF1A1A1A)
+val CanonicalGlassFillElevatedDark = Color(0xFF222222)
+val CanonicalGlassFillSubtleDark = Color(0xFF141414)
 val CanonicalGlassBorderTopDark = Color(0x24FFFFFF) // Solid Specular Hairline (14% white)
 val CanonicalGlassBorderBottomDark = Color(0x0A000000)
 val CanonicalGlassSheenTopDark = Color(0x20FFFFFF)
-val CanonicalTextPrimaryDark = Color(0xFFF8FAFC)
-val CanonicalTextSecondaryDark = Color(0xFFCBD5E1)
-val CanonicalTextMutedDark = Color(0xFF8A99AC)
-val CanonicalDividerDark = Color(0x14FFFFFF) // 8% white interior separator
-val CanonicalAccentActionDark = Color(0xFF38BDF8)
-val CanonicalDestructiveDark = Color(0xFFF87171)
+val CanonicalTextPrimaryDark = Color(0xFFF2F2F2)
+val CanonicalTextSecondaryDark = Color(0xFF929292)
+val CanonicalTextMutedDark = Color(0xFF666666)
+val CanonicalDividerDark = Color(0xFF292929)
+val CanonicalAccentActionDark = Color(0xFFF2F2F2)
+val CanonicalDestructiveDark = Color(0xFFF2F2F2)
 val CanonicalDestructiveLight = Color(0xFFDC2626)
 
 // =========================================================================
@@ -34,10 +34,10 @@ val LiquidGlassCanvasDark = CanonicalCanvasDark
 val LiquidGlassCanvasSecondaryDark = CanonicalCanvasSecondaryDark
 
 // Translucent Layered Materials
-val LiquidGlassCardTopDark = Color(0x38161E2E)
-val LiquidGlassCardBottomDark = Color(0x22111724)
-val LiquidGlassCapsuleTopDark = Color(0x401E283D)
-val LiquidGlassCapsuleBottomDark = Color(0x28161E2E)
+val LiquidGlassCardTopDark = Color(0x381A1A1A)
+val LiquidGlassCardBottomDark = Color(0x22111111)
+val LiquidGlassCapsuleTopDark = Color(0x40222222)
+val LiquidGlassCapsuleBottomDark = Color(0x281A1A1A)
 val LiquidGlassLensTopDark = Color(0x33FFFFFF)
 val LiquidGlassLensMidDark = Color(0x18FFFFFF)
 val LiquidGlassLensBottomDark = Color(0x0A000000)
