@@ -196,9 +196,8 @@ import dev.chrisbanes.haze.hazeEffect
  */
 @Composable
 fun Modifier.paperDotBackground(): Modifier {
-  val colors = LocalAppColors.current
   return this.drawBehind {
-    drawRect(color = colors.paperBackground)
+    drawRect(color = Color(0xFF000000))
   }
 }
 

@@ -16,11 +16,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.ui.res.painterResource
-import com.example.R
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
@@ -38,12 +36,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.example.ui.components.motionBlurOnScroll
 import com.example.ui.components.UndoConfirmationPill
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -85,7 +83,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
@@ -100,51 +100,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.Habit
 import com.example.data.model.Task
 import com.example.data.model.TaskPriority
-import com.example.ui.theme.AccentRed
 import com.example.ui.components.AppEmptyState
-import com.example.ui.components.AppHeader
 import com.example.ui.components.DeleteConfirmationDialog
 import com.example.ui.components.FloatingNavContentBottomPadding
-import com.example.ui.components.GlassCard
-import com.example.ui.components.GlassButton
-import com.example.ui.components.GlassMenu
-import com.example.ui.components.GlassMenuItem
-import com.example.ui.components.LiquidGlassCard
-import com.example.ui.components.LiquidGlassCapsule
-import com.example.ui.components.LiquidGlassSegmentedControl
-import com.example.ui.components.GlassSegmented
-import com.example.ui.components.ColorTagBadge
-import com.example.ui.components.LiquidGlassButton
-import com.example.ui.components.LiquidGlassIconButton
-import com.example.ui.glass.LiquidGlassVariant
-import com.example.ui.components.LiquidGlassProgressIndicator
-import com.example.ui.components.CircularProgressGauge
-import com.example.ui.components.StreakFlameBadge
-import com.example.ui.components.fluidLensedGlass
 import com.example.ui.components.AppleCircularCheckbox
 import com.example.ui.components.GlassCheckbox
 import com.example.ui.components.paperDotBackground
-import com.example.ui.theme.AccentOrange
-import com.example.ui.theme.AccentTerracotta
-import com.example.ui.theme.PrimaryAccentLime
-import com.example.ui.theme.OklchIndigo
-import com.example.ui.theme.OklchEmerald
-import com.example.ui.theme.OklchCyan
-import com.example.ui.theme.CardBackground
-import com.example.ui.theme.CardBorder
+import com.example.ui.components.bounceClick
+import com.example.ui.components.sectionEntrance
 import com.example.ui.theme.InkMuted
 import com.example.ui.theme.InkPrimary
 import com.example.ui.theme.InkSecondary
-import com.example.ui.components.bounceClick
-import com.example.ui.components.heroEntrance
-import com.example.ui.components.sectionEntrance
-import com.example.ui.components.staggeredEntrance
-import com.example.ui.components.pulseEntrance
-import com.example.ui.components.shimmerBadge
+import com.example.ui.theme.PrimaryAccentLime
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.DeleteOutline
-import com.example.ui.theme.PillBackgroundDark
-import com.example.ui.theme.PillTextDark
 import com.example.ui.viewmodel.MainViewModel
 import com.example.util.AppPreferences
 import com.example.ui.screens.calendar.formatTimeDisplay
@@ -245,7 +214,7 @@ fun HomeScreen(
   Box(
     modifier = modifier
       .fillMaxSize()
-      .paperDotBackground()
+      .background(Color.Black)
   ) {
     LazyColumn(
       state = listState,
@@ -257,103 +226,43 @@ fun HomeScreen(
         bottom = FloatingNavContentBottomPadding + 48.dp
       )
     ) {
-      // Standardized Top Header
+      // ── Custom Minimal Header ──
       item {
-        AppHeader(
-          title = "Today",
-          leftContent = {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-              Image(
-                painter = painterResource(R.drawable.app_logo),
-                contentDescription = "TDlxHT Logo",
-                modifier = Modifier
-                  .size(34.dp)
-                  .clip(CircleShape)
-                  .border(1.dp, CardBorder, CircleShape)
+        Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Text(
+              text = "Today",
+              style = TextStyle(
+                fontFamily = StrongFontFamily,
+                fontSize = 34.sp,
+                fontWeight = FontWeight.Bold,
+                color = InkPrimary
               )
-              Box {
-                LiquidGlassIconButton(
-                  onClick = { showHomeMenu = true },
-                  contentDescription = "Home options",
-                  size = 40.dp,
-                  modifier = Modifier.testTag("home_options_button")
-                ) {
-                  Icon(Icons.Default.MoreVert, contentDescription = null, tint = InkPrimary, modifier = Modifier.size(18.dp))
-                }
-                GlassMenu(
-                  expanded = showHomeMenu,
-                  onDismissRequest = { showHomeMenu = false }
-                ) {
-                  GlassMenuItem(
-                    label = if (isDashboardEditMode) "Finish customization" else "Customize dashboard",
-                    icon = {
-                      Icon(
-                        imageVector = if (isDashboardEditMode) Icons.Default.Check else Icons.Default.Settings,
-                        contentDescription = null
-                      )
-                    },
-                    onSelect = {
-                      showHomeMenu = false
-                      if (isDashboardEditMode) {
-                        DashboardLayoutManager.saveLayout(context, editOrder, editVisibility)
-                      }
-                      isDashboardEditMode = !isDashboardEditMode
-                    },
-                    modifier = Modifier.testTag("home_edit_mode_btn")
-                  )
-                  GlassMenuItem(
-                    label = if (showOverview) "Hide today’s overview" else "Today’s overview",
-                    icon = { Icon(Icons.Outlined.Insights, contentDescription = null) },
-                    onSelect = {
-                      showOverview = !showOverview
-                      showHomeMenu = false
-                    }
-                  )
-                }
-              }
-            }
-          },
-          rightContent = {
+            )
+
             Row(
               verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(8.dp)
+              horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-              if (onNavigateToTools != null) {
-                LiquidGlassIconButton(
-                  onClick = { onNavigateToTools() },
-                  contentDescription = "Productivity Calculators & Utilities",
-                  size = 40.dp,
-                  modifier = Modifier.testTag("home_tools_button")
-                ) {
-                  Icon(
-                    imageVector = Icons.Rounded.Handyman,
-                    contentDescription = null,
-                    tint = InkPrimary,
-                    modifier = Modifier.size(18.dp)
-                  )
-                }
-              }
-
               if (onNavigateToSearch != null) {
-                LiquidGlassIconButton(
+                IconButton(
                   onClick = { onNavigateToSearch() },
-                  contentDescription = "Search",
-                  size = 40.dp,
-                  modifier = Modifier.testTag("home_search_button")
+                  modifier = Modifier.size(40.dp).testTag("home_search_button")
                 ) {
                   Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = null,
-                    tint = InkPrimary,
-                    modifier = Modifier.size(18.dp)
+                    contentDescription = "Search",
+                    tint = InkSecondary,
+                    modifier = Modifier.size(20.dp)
                   )
                 }
               }
 
-              LiquidGlassIconButton(
+              IconButton(
                 onClick = {
                   if (onNavigateToSettings != null) {
                     onNavigateToSettings()
@@ -361,35 +270,85 @@ fun HomeScreen(
                     onNavigateToAddTask()
                   }
                 },
-                contentDescription = "Settings",
-                size = 40.dp,
-                modifier = Modifier.testTag("home_settings_button")
+                modifier = Modifier.size(40.dp).testTag("home_settings_button")
               ) {
                 Icon(
                   imageVector = Icons.Default.Settings,
-                  contentDescription = null,
-                  tint = InkPrimary,
-                  modifier = Modifier.size(18.dp)
+                  contentDescription = "Settings",
+                  tint = InkSecondary,
+                  modifier = Modifier.size(20.dp)
                 )
               }
             }
           }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+
+          // Date subtitle
+          Text(
+            text = todayFormattedDate,
+            style = TextStyle(
+              fontSize = 15.sp,
+              color = InkSecondary
+            ),
+            modifier = Modifier.padding(top = 2.dp)
+          )
+
+          // Hidden menu logic (triggered via long-press or MoreVert, kept minimal)
+          Box {
+            IconButton(
+              onClick = { showHomeMenu = true },
+              modifier = Modifier.size(32.dp).testTag("home_options_button")
+            ) {
+              Icon(Icons.Default.MoreVert, contentDescription = "Home options", tint = Color(0xFF929292), modifier = Modifier.size(16.dp))
+            }
+            androidx.compose.material3.DropdownMenu(
+              expanded = showHomeMenu,
+              onDismissRequest = { showHomeMenu = false },
+              modifier = Modifier.background(Color(0xFF1A1A1A))
+            ) {
+              androidx.compose.material3.DropdownMenuItem(
+                text = {
+                  Text(
+                    if (isDashboardEditMode) "Finish customization" else "Customize dashboard",
+                    style = TextStyle(fontSize = 14.sp, color = InkPrimary)
+                  )
+                },
+                onClick = {
+                  showHomeMenu = false
+                  if (isDashboardEditMode) {
+                    DashboardLayoutManager.saveLayout(context, editOrder, editVisibility)
+                  }
+                  isDashboardEditMode = !isDashboardEditMode
+                },
+                modifier = Modifier.testTag("home_edit_mode_btn")
+              )
+              androidx.compose.material3.DropdownMenuItem(
+                text = {
+                  Text(
+                    if (showOverview) "Hide today's overview" else "Today's overview",
+                    style = TextStyle(fontSize = 14.sp, color = InkPrimary)
+                  )
+                },
+                onClick = {
+                  showOverview = !showOverview
+                  showHomeMenu = false
+                }
+              )
+            }
+          }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
       }
 
       if (isDashboardEditMode) {
         // 1. Layout Editor Header Card
         item {
-          LiquidGlassCard(
-            modifier = Modifier.fillMaxWidth(),
-            cornerRadius = OuterCornerRadius
+          Box(
+            modifier = Modifier
+              .fillMaxWidth()
+              .background(Color(0xFF1A1A1A), RoundedCornerShape(OuterCornerRadius))
+              .padding(16.dp)
           ) {
-            Column(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-            ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
               Text(
                 text = "DASHBOARD LAYOUT",
                 style = TextStyle(
@@ -397,12 +356,12 @@ fun HomeScreen(
                   fontSize = 11.sp,
                   fontWeight = FontWeight.Bold,
                   letterSpacing = 1.sp,
-                  color = OklchIndigo
+                  color = InkPrimary
                 )
               )
               Spacer(modifier = Modifier.height(4.dp))
               Text(
-              text = "Reorder sections and choose what appears on Home.",
+                text = "Reorder sections and choose what appears on Home.",
                 style = TextStyle(
                   fontFamily = StrongFontFamily,
                   fontSize = 13.sp,
@@ -426,17 +385,20 @@ fun HomeScreen(
             label = "dragCardScale"
           )
 
-          LiquidGlassCard(
+          Box(
             modifier = Modifier
               .fillMaxWidth()
               .graphicsLayer {
                 scaleX = dragScale
                 scaleY = dragScale
               }
-              .animateItem(),
-            cornerRadius = InnerCornerRadius,
-            borderWidth = if (isBeingDragged) 1.5.dp else 1.dp,
-            borderColor = if (isBeingDragged) InkPrimary else if (isVisible) CardBorder else CardBorder.copy(alpha = 0.4f)
+              .animateItem()
+              .background(Color(0xFF1A1A1A), RoundedCornerShape(InnerCornerRadius))
+              .border(
+                width = if (isBeingDragged) 1.5.dp else 1.dp,
+                color = if (isBeingDragged) InkPrimary else if (isVisible) Color(0xFF292929) else Color(0xFF292929).copy(alpha = 0.4f),
+                shape = RoundedCornerShape(InnerCornerRadius)
+              )
           ) {
             Row(
               modifier = Modifier
@@ -451,7 +413,7 @@ fun HomeScreen(
                   .size(48.dp)
                   .clip(CircleShape)
                   .background(
-                    if (isBeingDragged) (if (isDark) Color(0x33FFFFFF) else Color(0x22000000))
+                    if (isBeingDragged) Color(0x33FFFFFF)
                     else Color.Transparent
                   )
                   .pointerInput(editOrder) {
@@ -517,8 +479,8 @@ fun HomeScreen(
                   modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(if (!isFirst) (if (isDark) Color(0x18FFFFFF) else Color(0x10000000)) else Color.Transparent)
-                    .bounceClick(shine = true, enabled = !isFirst) {
+                    .background(if (!isFirst) Color(0x18FFFFFF) else Color.Transparent)
+                    .clickable(enabled = !isFirst) {
                       if (!isFirst) {
                         val newOrder = editOrder.toMutableList()
                         val temp = newOrder[index]
@@ -542,8 +504,8 @@ fun HomeScreen(
                   modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(if (!isLast) (if (isDark) Color(0x18FFFFFF) else Color(0x10000000)) else Color.Transparent)
-                    .bounceClick(shine = true, enabled = !isLast) {
+                    .background(if (!isLast) Color(0x18FFFFFF) else Color.Transparent)
+                    .clickable(enabled = !isLast) {
                       if (!isLast) {
                         val newOrder = editOrder.toMutableList()
                         val temp = newOrder[index]
@@ -593,10 +555,9 @@ fun HomeScreen(
                   .size(48.dp)
                   .clip(CircleShape)
                   .background(
-                    if (isVisible) (if (isDark) Color(0x22FFFFFF) else Color(0x14000000))
-                    else Color.Transparent
+                    if (isVisible) Color(0x22FFFFFF) else Color.Transparent
                   )
-                  .bounceClick(shine = true) {
+                  .clickable {
                     val map = editVisibility.toMutableMap()
                     map[section] = !isVisible
                     editVisibility = map
@@ -606,7 +567,7 @@ fun HomeScreen(
                 Icon(
                   imageVector = if (isVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                   contentDescription = if (isVisible) "Hide section" else "Show section",
-                  tint = if (isVisible) OklchIndigo else InkSecondary.copy(alpha = 0.5f),
+                  tint = if (isVisible) InkPrimary else InkSecondary.copy(alpha = 0.5f),
                   modifier = Modifier.size(20.dp)
                 )
               }
@@ -627,8 +588,10 @@ fun HomeScreen(
               modifier = Modifier
                 .weight(1f)
                 .height(48.dp)
-                .fluidLensedGlass(shape = InnerCornerShape, elevation = 2.dp)
-                .bounceClick(shine = true) {
+                .background(Color(0xFF1A1A1A), InnerCornerShape)
+                .border(1.dp, Color(0xFF292929), InnerCornerShape)
+                .clip(InnerCornerShape)
+                .clickable {
                   editOrder = DashboardSection.DEFAULT_ORDER
                   editVisibility = DashboardSection.entries.associateWith { true }
                 },
@@ -653,8 +616,10 @@ fun HomeScreen(
               modifier = Modifier
                 .weight(1f)
                 .height(48.dp)
-                .fluidLensedGlass(shape = InnerCornerShape, elevation = 2.dp)
-                .bounceClick(shine = true) {
+                .background(Color(0xFF1A1A1A), InnerCornerShape)
+                .border(1.dp, Color(0xFF292929), InnerCornerShape)
+                .clip(InnerCornerShape)
+                .clickable {
                   editOrder = sectionOrder
                   editVisibility = sectionVisibility
                   isDashboardEditMode = false
@@ -664,22 +629,18 @@ fun HomeScreen(
               Text("Cancel", style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = InkSecondary))
             }
 
-            // Save & Apply Button (Authentic Liquid Glass)
+            // Save & Apply Button
             Box(
               modifier = Modifier
                 .weight(1.2f)
                 .height(48.dp)
-                .fluidLensedGlass(
-                  shape = InnerCornerShape,
-                  elevation = 3.dp,
-                  borderWidth = 0.85.dp,
-                  isElevated = true,
-                  isInteractive = true,
-                  onClick = {
-                    DashboardLayoutManager.saveLayout(context, editOrder, editVisibility)
-                    isDashboardEditMode = false
-                  }
-                ),
+                .background(Color(0xFF1A1A1A), InnerCornerShape)
+                .border(1.dp, InkPrimary.copy(alpha = 0.4f), InnerCornerShape)
+                .clip(InnerCornerShape)
+                .clickable {
+                  DashboardLayoutManager.saveLayout(context, editOrder, editVisibility)
+                  isDashboardEditMode = false
+                },
               contentAlignment = Alignment.Center
             ) {
               Row(
@@ -689,10 +650,10 @@ fun HomeScreen(
                 Icon(
                   imageVector = Icons.Default.Check,
                   contentDescription = null,
-                  tint = PrimaryAccentLime,
+                  tint = InkPrimary,
                   modifier = Modifier.size(16.dp)
                 )
-                Text("Save", style = TextStyle(fontFamily = StrongFontFamily, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = PrimaryAccentLime))
+                Text("Save", style = TextStyle(fontFamily = StrongFontFamily, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = InkPrimary))
               }
             }
           }
@@ -703,138 +664,80 @@ fun HomeScreen(
           sectionVisibility[DashboardSection.QUICK_METRICS] != false
         if (showOverview && overviewEnabled) {
           item {
-            LiquidGlassCard(
-              modifier = Modifier.fillMaxWidth().heroEntrance(delayMs = 80),
-              shape = RoundedCornerShape(18.dp)
-            ) {
-              Row(
-                modifier = Modifier.fillMaxWidth().padding(14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-              ) {
-                Column(modifier = Modifier.weight(1f)) {
-                  Text(
-                    text = "Today’s overview",
-                    style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = InkPrimary)
-                  )
-                  Text(
-                    text = todayFormattedDate,
-                    style = TextStyle(fontSize = 12.sp, color = InkSecondary)
-                  )
-                  Spacer(modifier = Modifier.height(10.dp))
-                  Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Column {
-                      Text("Tasks", style = TextStyle(fontSize = 11.sp, color = InkSecondary))
-                      Text(
-                        "${todayTasks.count { it.isCompleted }}/${todayTasks.size}",
-                        style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = InkPrimary)
-                      )
-                    }
-                    Column {
-                      Text("Habits", style = TextStyle(fontSize = 11.sp, color = InkSecondary))
-                      Text(
-                        "${todayHabits.count { completedHabitIds.contains(it.id) }}/${todayHabits.size}",
-                        style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = InkPrimary)
-                      )
-                    }
-                    Column {
-                      Text("Streak", style = TextStyle(fontSize = 11.sp, color = InkSecondary))
-                      Text(
-                        "${summary.maxStreak}d",
-                        style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = InkPrimary)
-                      )
-                    }
-                  }
-                }
-                LiquidGlassProgressIndicator(
-                  progress = summary.overallProgress,
-                  modifier = Modifier.size(48.dp),
-                  strokeWidth = 5.dp,
-                  progressColor = LocalAppColors.current.oklchPrimary
-                )
-              }
-            }
+            // Flat overview - single line of stats
+            Text(
+              text = "${todayTasks.count { it.isCompleted }}/${todayTasks.size} tasks · ${todayHabits.count { completedHabitIds.contains(it.id) }}/${todayHabits.size} habits · ${summary.maxStreak}d streak",
+              style = TextStyle(
+                fontSize = 13.sp,
+                color = InkSecondary
+              ),
+              modifier = Modifier.padding(vertical = 8.dp)
+            )
+            HorizontalDivider(thickness = 0.5.dp, color = Color(0xFF292929))
             Spacer(modifier = Modifier.height(10.dp))
           }
         }
 
         if (sectionVisibility[DashboardSection.DAILY_PLANNER] != false) {
 
-      // Filter Segment: [All] [Tasks] [Habits] - Unified Liquid Glass Segmented Control
+      // ── Minimal Segmented Control ──
       item {
-        GlassSegmented(
-          options = listOf("All", "Tasks", "Habits"),
-          value = selectedTab,
-          onChange = { selectedTab = it },
+        Row(
           modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-        )
-
+            .padding(vertical = 8.dp),
+          horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+          listOf("All", "Tasks", "Habits").forEachIndexed { index, label ->
+            val isSelected = selectedTab == index
+            val underlineColor = if (isSelected) InkPrimary else Color.Transparent
+            Column(
+              horizontalAlignment = Alignment.CenterHorizontally,
+              modifier = Modifier
+                .clickable { selectedTab = index }
+                .drawBehind {
+                  if (isSelected) {
+                    val strokeWidth = 1.dp.toPx()
+                    drawLine(
+                      color = underlineColor,
+                      start = Offset(0f, size.height),
+                      end = Offset(size.width, size.height),
+                      strokeWidth = strokeWidth
+                    )
+                  }
+                }
+                .padding(bottom = 8.dp)
+            ) {
+              Text(
+                text = label,
+                style = TextStyle(
+                  fontSize = 15.sp,
+                  fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                  color = if (isSelected) InkPrimary else Color(0xFF929292)
+                )
+              )
+            }
+          }
+        }
         Spacer(modifier = Modifier.height(12.dp))
       }
 
       // TODAY'S TASKS SECTION
       if (selectedTab == 0 || selectedTab == 1) {
         item {
-          Row(
+          Text(
+            text = "TASKS",
+            style = TextStyle(
+              fontFamily = StrongFontFamily,
+              fontSize = 11.sp,
+              fontWeight = FontWeight.Bold,
+              letterSpacing = 1.5.sp,
+              color = Color(0xFF929292)
+            ),
             modifier = Modifier
-              .fillMaxWidth()
               .sectionEntrance(delayMs = 60)
-              .padding(bottom = 6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-          ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              Text(
-                text = "Today's Tasks",
-                style = TextStyle(
-                  fontFamily = StrongFontFamily,
-                  fontSize = 18.sp,
-                  fontWeight = FontWeight.Bold,
-                  color = InkPrimary
-                )
-              )
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-              // Independent View Switcher (List / Grid)
-              LiquidGlassButton(
-                onClick = {
-                  val next = if (todayTasksViewMode == "GRID") "LIST" else "GRID"
-                  AppPreferences.setTodayTasksViewMode(context, next)
-                },
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.height(34.dp)
-              ) {
-                Text(
-                  text = if (todayTasksViewMode == "GRID") "List" else "Grid",
-                  style = TextStyle(
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = InkSecondary
-                  )
-                )
-              }
-
-              LiquidGlassButton(
-                onClick = onQuickAdd ?: onNavigateToAddTask,
-                shape = RoundedCornerShape(10.dp),
-                variant = LiquidGlassVariant.Prominent,
-                modifier = Modifier.height(34.dp).testTag("add_task_header_btn")
-              ) {
-                Text(
-                  text = "Add",
-                  style = TextStyle(
-                    fontFamily = StrongFontFamily,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LocalAppColors.current.oklchPrimary
-                  )
-                )
-              }
-            }
-          }
+              .padding(bottom = 10.dp)
+          )
         }
 
         if (todayTasks.isEmpty()) {
@@ -848,43 +751,13 @@ fun HomeScreen(
               modifier = Modifier.padding(vertical = 12.dp)
             )
           }
-        } else if (todayTasksViewMode == "GRID") {
-          val taskPairs = todayTasks.chunked(2)
-          items(taskPairs, key = { pair -> pair.joinToString("-") { it.id } }) { pair ->
-            Row(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-              horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-              pair.forEach { task ->
-                val subtasks = viewModel.getSubtasksForTask(task.id)
-                val subtasksDone = subtasks.count { it.isCompleted }
-                Box(modifier = Modifier.weight(1f)) {
-                  TaskGridCard(
-                    task = task,
-                    subtasksCount = subtasks.size,
-                    subtasksDone = subtasksDone,
-                    isEditMode = isDashboardEditMode,
-                    is24Hour = settings.timeFormat24Hour,
-                    onToggle = { handleTaskToggle(task) },
-                    onClick = { onTaskClick(task) },
-                    onDelete = { taskToDelete = task }
-                  )
-                }
-              }
-              if (pair.size == 1) {
-                Spacer(modifier = Modifier.weight(1f))
-              }
-            }
-          }
         } else {
-          items(todayTasks, key = { it.id }) { task ->
+          // List view only — flat rows with dividers
+          itemsIndexed(todayTasks, key = { _, task -> task.id }) { index, task ->
             val subtasks = viewModel.getSubtasksForTask(task.id)
             val subtasksDone = subtasks.count { it.isCompleted }
-            val itemIndex = todayTasks.indexOf(task)
 
-            Box(modifier = Modifier.animateItem().staggeredEntrance(index = itemIndex)) {
+            Box(modifier = Modifier.animateItem()) {
               TaskItemCard(
                 task = task,
                 subtasksCount = subtasks.size,
@@ -893,8 +766,14 @@ fun HomeScreen(
                 is24Hour = settings.timeFormat24Hour,
                 onToggle = { handleTaskToggle(task) },
                 onClick = { onTaskClick(task) },
-                onDelete = { taskToDelete = task },
-                modifier = Modifier.padding(vertical = 4.dp)
+                onDelete = { taskToDelete = task }
+              )
+            }
+            if (index < todayTasks.size - 1) {
+              HorizontalDivider(
+                thickness = 0.5.dp,
+                color = Color(0xFF292929),
+                modifier = Modifier.padding(start = 44.dp)
               )
             }
           }
@@ -910,64 +789,19 @@ fun HomeScreen(
       if (sectionVisibility[DashboardSection.HABIT_STREAKS] != false) {
       if (selectedTab == 0 || selectedTab == 2) {
         item {
-          Row(
+          Text(
+            text = "HABITS",
+            style = TextStyle(
+              fontFamily = StrongFontFamily,
+              fontSize = 11.sp,
+              fontWeight = FontWeight.Bold,
+              letterSpacing = 1.5.sp,
+              color = Color(0xFF929292)
+            ),
             modifier = Modifier
-              .fillMaxWidth()
               .sectionEntrance(delayMs = 80)
-              .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-          ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              Text(
-                text = "Today's Habits",
-                style = TextStyle(
-                  fontFamily = StrongFontFamily,
-                  fontSize = 18.sp,
-                  fontWeight = FontWeight.Bold,
-                  color = InkPrimary
-                )
-              )
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-              // Independent View Switcher (List / Grid)
-              LiquidGlassButton(
-                onClick = {
-                  val next = if (todayHabitsViewMode == "GRID") "LIST" else "GRID"
-                  AppPreferences.setTodayHabitsViewMode(context, next)
-                },
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.height(34.dp)
-              ) {
-                Text(
-                  text = if (todayHabitsViewMode == "GRID") "List" else "Grid",
-                  style = TextStyle(
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = InkSecondary
-                  )
-                )
-              }
-
-              LiquidGlassButton(
-                onClick = onQuickAdd ?: onNavigateToAddHabit,
-                shape = RoundedCornerShape(10.dp),
-                variant = LiquidGlassVariant.Prominent,
-                modifier = Modifier.height(34.dp).testTag("add_habit_header_btn")
-              ) {
-                Text(
-                  text = "Add",
-                  style = TextStyle(
-                    fontFamily = StrongFontFamily,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LocalAppColors.current.oklchPrimary
-                  )
-                )
-              }
-            }
-          }
+              .padding(bottom = 10.dp)
+          )
         }
 
         if (todayHabits.isEmpty()) {
@@ -981,49 +815,14 @@ fun HomeScreen(
               modifier = Modifier.padding(vertical = 12.dp)
             )
           }
-        } else if (todayHabitsViewMode == "GRID") {
-          val habitPairs = todayHabits.chunked(2)
-          items(habitPairs, key = { pair -> pair.joinToString("-") { it.id } }) { pair ->
-            Row(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-              horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-              pair.forEach { habit ->
-                val isCompleted = completedHabitIds.contains(habit.id)
-                val currentSessions = todayHabitRecords[habit.id]?.currentValue?.toInt() ?: 0
-                val streakInfo = viewModel.getHabitStreak(habit)
-                Box(modifier = Modifier.weight(1f)) {
-                  HabitGridCard(
-                    habit = habit,
-                    isCompleted = isCompleted,
-                    currentSessions = currentSessions,
-                    streakDays = streakInfo.currentStreak,
-                    isEditMode = isDashboardEditMode,
-                    onToggle = {
-                      viewModel.toggleHabitToday(habit.id)
-                      com.example.util.SoundManager.playHabitTick(context)
-                      com.example.util.HapticManager.sliderSnap(context)
-                    },
-                    onClick = { onHabitClick(habit) },
-                    onDelete = { habitToDelete = habit }
-                  )
-                }
-              }
-              if (pair.size == 1) {
-                Spacer(modifier = Modifier.weight(1f))
-              }
-            }
-          }
         } else {
-          items(todayHabits, key = { it.id }) { habit ->
+          // List view only — flat rows with dividers
+          itemsIndexed(todayHabits, key = { _, habit -> habit.id }) { index, habit ->
             val isCompleted = completedHabitIds.contains(habit.id)
             val currentSessions = todayHabitRecords[habit.id]?.currentValue?.toInt() ?: 0
             val streakInfo = viewModel.getHabitStreak(habit)
-            val habitIndex = todayHabits.indexOf(habit)
 
-            Box(modifier = Modifier.animateItem().staggeredEntrance(index = habitIndex)) {
+            Box(modifier = Modifier.animateItem()) {
               HabitItemCard(
                 habit = habit,
                 isCompleted = isCompleted,
@@ -1036,8 +835,14 @@ fun HomeScreen(
                   com.example.util.HapticManager.sliderSnap(context)
                 },
                 onClick = { onHabitClick(habit) },
-                onDelete = { habitToDelete = habit },
-                modifier = Modifier.padding(vertical = 4.dp)
+                onDelete = { habitToDelete = habit }
+              )
+            }
+            if (index < todayHabits.size - 1) {
+              HorizontalDivider(
+                thickness = 0.5.dp,
+                color = Color(0xFF292929),
+                modifier = Modifier.padding(start = 44.dp)
               )
             }
           }
@@ -1045,78 +850,67 @@ fun HomeScreen(
       }
       } // end HABIT_STREAKS
       if (sectionVisibility[DashboardSection.TIME_BLOCKS] != false && scheduledTasks.isNotEmpty()) {
-        // TIME BLOCKS SECTION
+        // TIME BLOCKS SECTION — flat list
         item {
-          LiquidGlassCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp)
+          Column(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(vertical = 8.dp)
           ) {
-            Column(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp)
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically
             ) {
+              Text(
+                text = "TIME BLOCKS",
+                style = TextStyle(
+                  fontFamily = StrongFontFamily,
+                  fontSize = 11.sp,
+                  fontWeight = FontWeight.Bold,
+                  letterSpacing = 1.5.sp,
+                  color = Color(0xFF929292)
+                )
+              )
+              Text(
+                text = "${scheduledTasks.size} Scheduled",
+                style = TextStyle(fontSize = 12.sp, color = InkSecondary)
+              )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            scheduledTasks.take(4).forEachIndexed { index, task ->
               Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .clickable { onTaskClick(task) }
+                  .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
               ) {
                 Text(
-                  text = "TIME BLOCKS",
+                  text = task.dueTime ?: "",
                   style = TextStyle(
-                    fontFamily = StrongFontFamily,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp,
-                    color = OklchIndigo
-                  )
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = InkSecondary,
+                    fontFamily = StrongFontFamily
+                  ),
+                  modifier = Modifier.width(56.dp)
                 )
                 Text(
-                  text = "${scheduledTasks.size} Scheduled",
-                  style = TextStyle(fontSize = 12.sp, color = InkSecondary)
+                  text = task.title,
+                  style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (task.isCompleted) InkSecondary else InkPrimary,
+                    textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null
+                  ),
+                  maxLines = 1,
+                  modifier = Modifier.weight(1f)
                 )
               }
-              Spacer(modifier = Modifier.height(10.dp))
-              if (scheduledTasks.isEmpty()) {
-                Text(
-                  text = "No time-blocked tasks scheduled for today. Add a due time to schedule tasks in your day.",
-                  style = TextStyle(fontSize = 13.sp, color = InkSecondary)
-                )
-              } else {
-                scheduledTasks.take(4).forEach { task ->
-                  Row(
-                    modifier = Modifier
-                      .fillMaxWidth()
-                      .clip(InnerCornerShape)
-                      .bounceClick { onTaskClick(task) }
-                      .padding(vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                  ) {
-                    Box(
-                      modifier = Modifier
-                        .clip(CircleShape)
-                        .background(OklchIndigo.copy(alpha = 0.15f))
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
-                    ) {
-                      Text(
-                        text = task.dueTime ?: "",
-                        style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold, color = OklchIndigo)
-                      )
-                    }
-                    Text(
-                      text = task.title,
-                      style = TextStyle(
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = if (task.isCompleted) InkSecondary else InkPrimary,
-                        textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null
-                      ),
-                      maxLines = 1,
-                      modifier = Modifier.weight(1f)
-                    )
-                  }
-                }
+              if (index < scheduledTasks.take(4).size - 1) {
+                HorizontalDivider(thickness = 0.5.dp, color = Color(0xFF292929))
               }
             }
           }
@@ -1152,7 +946,7 @@ fun HomeScreen(
       )
     }
 
-    // Floating Undo Confirmation Pill (Liquid Glass elevation)
+    // Floating Undo Confirmation Pill
     UndoConfirmationPill(
       visible = showUndoPill,
       message = "Task completed",
@@ -1187,164 +981,129 @@ fun TaskItemCard(
     animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
     label = "taskTextCol"
   )
-  val cardAlpha by animateFloatAsState(
-    targetValue = if (task.isCompleted) 0.88f else 1.0f,
-    animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
-    label = "taskAlpha"
-  )
 
-  LiquidGlassCard(
-    modifier = modifier
+  Row(
+    modifier = (modifier ?: Modifier)
       .fillMaxWidth()
-      .alpha(cardAlpha)
-      .animateContentSize(animationSpec = spring(dampingRatio = 0.75f, stiffness = 420f))
-      .bounceClick(scaleDown = 0.985f, onLongClick = onLongClick) { onClick() }
+      .clickable { onClick() }
+      .padding(horizontal = 0.dp, vertical = 12.dp)
       .testTag("task_card_${task.id}"),
-    cornerRadius = 16.dp,
-    borderWidth = 0.75.dp
+    verticalAlignment = Alignment.CenterVertically
   ) {
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 14.dp, vertical = 12.dp),
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-      // 1. Left: Apple Circular Checkbox (iOS Reminders placement)
-      if (!isEditMode) {
-        AppleCircularCheckbox(
-          checked = task.isCompleted,
-          onCheckedChange = { onToggle() },
-          modifier = Modifier.padding(end = 12.dp),
-          contentDescription = "Complete ${task.title}"
+    // 1. Left: Apple Circular Checkbox
+    if (!isEditMode) {
+      AppleCircularCheckbox(
+        checked = task.isCompleted,
+        onCheckedChange = { onToggle() },
+        modifier = Modifier.padding(end = 12.dp),
+        contentDescription = "Complete ${task.title}"
+      )
+    }
+
+    // 2. Center: Task Title & Metadata
+    Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        if (task.colorTag != null) {
+          val tag = com.example.data.model.AppColorTag.fromId(task.colorTag)
+          if (tag != null) {
+            Box(
+              modifier = Modifier
+                .padding(end = 6.dp)
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(tag.color)
+            )
+          }
+        }
+        Text(
+          text = task.title,
+          style = TextStyle(
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = textColor,
+            textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
+          )
         )
       }
 
-      // 2. Center: Task Title & Metadata
-      Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          if (task.colorTag != null) {
-            val tag = com.example.data.model.AppColorTag.fromId(task.colorTag)
-            if (tag != null) {
-              Box(
-                modifier = Modifier
-                  .padding(end = 6.dp)
-                  .size(8.dp)
-                  .clip(CircleShape)
-                  .background(tag.color)
-              )
-            }
-          }
+      Spacer(modifier = Modifier.height(3.dp))
+
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        val formattedTime = if (task.dueTime.isNotBlank()) formatTimeDisplay(task.dueTime, is24Hour) else ""
+        val categoryAndTime = if (formattedTime.isNotBlank()) "${task.category} • $formattedTime" else task.category
+        Text(
+          text = categoryAndTime,
+          style = TextStyle(
+            fontSize = 12.sp,
+            color = Color(0xFF929292)
+          )
+        )
+
+        if (subtasksCount > 0) {
+          Spacer(modifier = Modifier.width(8.dp))
           Text(
-            text = task.title,
-            style = TextStyle(
-              fontSize = 15.sp,
-              fontWeight = FontWeight.SemiBold,
-              color = textColor,
-              textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
-            )
+            text = "$subtasksDone/$subtasksCount",
+            style = TextStyle(fontSize = 10.sp, fontWeight = FontWeight.Bold, color = InkSecondary)
           )
         }
 
-        Spacer(modifier = Modifier.height(3.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          val formattedTime = if (task.dueTime.isNotBlank()) formatTimeDisplay(task.dueTime, is24Hour) else ""
-          val categoryAndTime = if (formattedTime.isNotBlank()) "${task.category} • $formattedTime" else task.category
+        if (task.priority == TaskPriority.HIGH) {
+          Spacer(modifier = Modifier.width(6.dp))
           Text(
-            text = categoryAndTime,
+            text = "HIGH",
             style = TextStyle(
-              fontSize = 12.sp,
+              fontSize = 9.sp,
+              fontWeight = FontWeight.Bold,
+              letterSpacing = 0.5.sp,
               color = InkSecondary
             )
           )
+        }
 
-          if (subtasksCount > 0) {
-            Spacer(modifier = Modifier.width(8.dp))
-            Box(
-              modifier = Modifier
-                .clip(RoundedCornerShape(6.dp))
-                .background(InkSecondary.copy(alpha = 0.12f))
-                .padding(horizontal = 5.dp, vertical = 1.5.dp)
-            ) {
-              Text(
-                text = "$subtasksDone/$subtasksCount",
-                style = TextStyle(fontSize = 10.sp, fontWeight = FontWeight.Bold, color = InkPrimary)
-              )
-            }
-          }
-
-          if (task.priority == TaskPriority.HIGH) {
-            Spacer(modifier = Modifier.width(6.dp))
-            Box(
-              modifier = Modifier
-                .clip(RoundedCornerShape(4.dp))
-                .background(AccentRed.copy(alpha = if (LocalAppColors.current.isDark) 0.18f else 0.12f))
-                .padding(horizontal = 4.dp, vertical = 1.dp)
-            ) {
-              Text(
-                text = "HIGH",
-                style = TextStyle(
-                  fontSize = 9.sp,
-                  fontWeight = FontWeight.Bold,
-                  letterSpacing = 0.5.sp,
-                  color = AccentRed
-                )
-              )
-            }
-          }
-
-          if (task.isShortTerm) {
-            Spacer(modifier = Modifier.width(6.dp))
-            Box(
-              modifier = Modifier
-                .clip(RoundedCornerShape(4.dp))
-                .background(InkSecondary.copy(alpha = 0.10f))
-                .padding(horizontal = 5.dp, vertical = 1.dp)
-            ) {
-              Text(
-                text = "Scratch",
-                style = TextStyle(fontSize = 9.sp, fontWeight = FontWeight.Medium, color = InkSecondary)
-              )
-            }
-          }
+        if (task.isShortTerm) {
+          Spacer(modifier = Modifier.width(6.dp))
+          Text(
+            text = "Scratch",
+            style = TextStyle(fontSize = 9.sp, fontWeight = FontWeight.Medium, color = InkSecondary)
+          )
         }
       }
+    }
 
-      // 3. Right: Edit Mode Actions
-      if (isEditMode) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    // 3. Right: Edit Mode Actions
+    if (isEditMode) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+          modifier = Modifier
+            .size(40.dp)
+            .border(1.dp, Color(0xFF292929), CircleShape)
+            .clip(CircleShape)
+            .clickable { onClick() },
+          contentAlignment = Alignment.Center
+        ) {
+          Icon(
+            imageVector = Icons.Default.Edit,
+            contentDescription = "Edit Task",
+            tint = InkPrimary,
+            modifier = Modifier.size(15.dp)
+          )
+        }
+        if (onDelete != null) {
+          Spacer(modifier = Modifier.width(8.dp))
           Box(
             modifier = Modifier
               .size(40.dp)
-              .border(1.dp, CardBorder, CircleShape)
+              .background(InkSecondary.copy(alpha = 0.12f), CircleShape)
               .clip(CircleShape)
-              .bounceClick { onClick() },
+              .clickable { onDelete() },
             contentAlignment = Alignment.Center
           ) {
             Icon(
-              imageVector = Icons.Default.Edit,
-              contentDescription = "Edit Task",
-              tint = InkPrimary,
-              modifier = Modifier.size(15.dp)
+              imageVector = Icons.Outlined.DeleteOutline,
+              contentDescription = "Delete Task",
+              tint = InkSecondary,
+              modifier = Modifier.size(16.dp)
             )
-          }
-          if (onDelete != null) {
-            Spacer(modifier = Modifier.width(8.dp))
-            Box(
-              modifier = Modifier
-                .size(40.dp)
-                .background(AccentRed.copy(alpha = 0.12f), CircleShape)
-                .clip(CircleShape)
-                .bounceClick { onDelete() },
-              contentAlignment = Alignment.Center
-            ) {
-              Icon(
-                imageVector = Icons.Outlined.DeleteOutline,
-                contentDescription = "Delete Task",
-                tint = AccentRed,
-                modifier = Modifier.size(16.dp)
-              )
-            }
           }
         }
       }
@@ -1376,15 +1135,16 @@ fun TaskGridCard(
     label = "gridTaskAlpha"
   )
 
-  LiquidGlassCard(
+  Box(
     modifier = modifier
       .fillMaxWidth()
       .alpha(cardAlpha)
       .animateContentSize(animationSpec = spring(dampingRatio = 0.75f, stiffness = 420f))
-      .bounceClick(scaleDown = 0.98f, onLongClick = onLongClick) { onClick() }
-      .testTag("task_grid_card_${task.id}"),
-    cornerRadius = 14.dp,
-    borderWidth = 0.75.dp
+      .background(Color(0xFF1A1A1A), RoundedCornerShape(14.dp))
+      .border(0.75.dp, Color(0xFF292929), RoundedCornerShape(14.dp))
+      .clip(RoundedCornerShape(14.dp))
+      .clickable { onClick() }
+      .testTag("task_grid_card_${task.id}")
   ) {
     Column(
       modifier = Modifier
@@ -1396,33 +1156,27 @@ fun TaskGridCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
       ) {
-        Box(
-          modifier = Modifier
-            .border(1.dp, CardBorder, RoundedCornerShape(6.dp))
-            .padding(horizontal = 6.dp, vertical = 2.dp)
-        ) {
-          Text(
-            text = task.category,
-            style = TextStyle(fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = InkSecondary)
-          )
-        }
+        Text(
+          text = task.category,
+          style = TextStyle(fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = InkSecondary)
+        )
 
         if (isEditMode) {
           if (onDelete != null) {
             Box(
               modifier = Modifier
                 .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
-                .bounceClick { onDelete() },
+                .clickable { onDelete() },
               contentAlignment = Alignment.Center
             ) {
               Box(
                 modifier = Modifier
                   .size(24.dp)
-                  .background(AccentTerracotta.copy(alpha = 0.15f), CircleShape)
+                  .background(InkSecondary.copy(alpha = 0.15f), CircleShape)
                   .clip(CircleShape),
                 contentAlignment = Alignment.Center
               ) {
-                Icon(Icons.Outlined.DeleteOutline, "Delete", tint = AccentTerracotta, modifier = Modifier.size(14.dp))
+                Icon(Icons.Outlined.DeleteOutline, "Delete", tint = InkSecondary, modifier = Modifier.size(14.dp))
               }
             }
           }
@@ -1478,13 +1232,14 @@ fun HabitGridCard(
     label = "gridHabitAlpha"
   )
 
-  LiquidGlassCard(
+  Box(
     modifier = modifier
       .fillMaxWidth()
       .alpha(cardAlpha)
-      .bounceClick(scaleDown = 0.98f) { onClick() },
-    cornerRadius = 14.dp,
-    borderWidth = 0.75.dp
+      .background(Color(0xFF1A1A1A), RoundedCornerShape(14.dp))
+      .border(0.75.dp, Color(0xFF292929), RoundedCornerShape(14.dp))
+      .clip(RoundedCornerShape(14.dp))
+      .clickable { onClick() }
   ) {
     Column(
       modifier = Modifier
@@ -1497,16 +1252,10 @@ fun HabitGridCard(
         verticalAlignment = Alignment.Top
       ) {
         if (streakDays > 0) {
-          Box(
-            modifier = Modifier
-              .background(PillBackgroundDark, RoundedCornerShape(6.dp))
-              .padding(horizontal = 6.dp, vertical = 2.dp)
-          ) {
-            Text(
-              text = "${streakDays}d streak",
-              style = TextStyle(fontFamily = com.example.ui.theme.SpecialFontFamily, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = PillTextDark)
-            )
-          }
+          Text(
+            text = "${streakDays}d",
+            style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Bold, color = InkSecondary)
+          )
         } else {
           Spacer(Modifier.size(1.dp))
         }
@@ -1516,17 +1265,17 @@ fun HabitGridCard(
             Box(
               modifier = Modifier
                 .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
-                .bounceClick { onDelete() },
+                .clickable { onDelete() },
               contentAlignment = Alignment.Center
             ) {
               Box(
                 modifier = Modifier
                   .size(24.dp)
-                  .background(AccentTerracotta.copy(alpha = 0.15f), CircleShape)
+                  .background(InkSecondary.copy(alpha = 0.15f), CircleShape)
                   .clip(CircleShape),
                 contentAlignment = Alignment.Center
               ) {
-                Icon(Icons.Outlined.DeleteOutline, "Delete", tint = AccentTerracotta, modifier = Modifier.size(14.dp))
+                Icon(Icons.Outlined.DeleteOutline, "Delete", tint = InkSecondary, modifier = Modifier.size(14.dp))
               }
             }
           }
@@ -1536,10 +1285,10 @@ fun HabitGridCard(
             Box(
               modifier = Modifier
                 .height(28.dp)
-                .background(PillBackgroundDark.copy(alpha = 0.10f), RoundedCornerShape(14.dp))
-                .border(1.dp, CardBorder, RoundedCornerShape(14.dp))
+                .background(InkSecondary.copy(alpha = 0.10f), RoundedCornerShape(14.dp))
+                .border(1.dp, Color(0xFF292929), RoundedCornerShape(14.dp))
                 .clip(RoundedCornerShape(14.dp))
-                .bounceClick { onToggle() }
+                .clickable { onToggle() }
                 .padding(horizontal = 8.dp, vertical = 4.dp),
               contentAlignment = Alignment.Center
             ) {
@@ -1605,169 +1354,140 @@ fun HabitItemCard(
     animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
     label = "habitTextCol"
   )
-  val cardAlpha by animateFloatAsState(
-    targetValue = if (isCompleted) 0.72f else 1.0f,
-    animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
-    label = "habitAlpha"
-  )
-  val streakScale by animateFloatAsState(
-    targetValue = if (isCompleted) 1.10f else 1.0f,
-    animationSpec = spring(
-      dampingRatio = Spring.DampingRatioMediumBouncy,
-      stiffness = Spring.StiffnessLow
-    ),
-    label = "homeHabitStreakPop"
-  )
 
-  LiquidGlassCard(
-    modifier = modifier
+  Row(
+    modifier = (modifier ?: Modifier)
       .fillMaxWidth()
-      .alpha(cardAlpha)
-      .animateContentSize(animationSpec = spring(dampingRatio = 0.75f, stiffness = 420f))
-      .bounceClick(scaleDown = 0.98f) { onClick() }
+      .clickable { onClick() }
+      .padding(horizontal = 0.dp, vertical = 12.dp)
       .testTag("habit_card_${habit.id}"),
-    cornerRadius = 14.dp,
-    borderWidth = 0.75.dp
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically
   ) {
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 14.dp, vertical = 12.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-      Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          if (habit.colorTag != null) {
-            val tag = com.example.data.model.AppColorTag.fromId(habit.colorTag)
-            if (tag != null) {
-              Box(
-                modifier = Modifier
-                  .padding(end = 6.dp)
-                  .size(10.dp)
-                  .clip(CircleShape)
-                  .background(tag.color)
-              )
-            }
-          }
-          Text(
-            text = habit.name,
-            style = TextStyle(
-              fontSize = 16.sp,
-              fontWeight = FontWeight.SemiBold,
-              color = textColor,
-              textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None
-            )
-          )
-
-          if (streakDays > 0) {
-            Spacer(modifier = Modifier.width(8.dp))
-            val isDarkTheme = LocalAppColors.current.isDark
-            val warningColor = LocalAppColors.current.oklchWarning
+    Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        if (habit.colorTag != null) {
+          val tag = com.example.data.model.AppColorTag.fromId(habit.colorTag)
+          if (tag != null) {
             Box(
               modifier = Modifier
-                .scale(streakScale)
-                .clip(RoundedCornerShape(8.dp))
-                .background(warningColor.copy(alpha = if (isDarkTheme) 0.16f else 0.10f))
-                .border(0.75.dp, warningColor.copy(alpha = if (isDarkTheme) 0.35f else 0.25f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 6.dp, vertical = 2.dp)
-            ) {
-              Text(
-                text = "${streakDays}d streak",
-                style = TextStyle(fontFamily = com.example.ui.theme.SpecialFontFamily, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isDarkTheme) warningColor else InkPrimary)
-              )
-            }
+                .padding(end = 6.dp)
+                .size(10.dp)
+                .clip(CircleShape)
+                .background(tag.color)
+            )
           }
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        val subtitleText = if (habit.targetValue > 1f) {
-          if (isCompleted) {
-            "${habit.targetValue.toInt()}/${habit.targetValue.toInt()} sessions completed"
-          } else if (currentSessions > 0) {
-            "$currentSessions/${habit.targetValue.toInt()} sessions • ${(habit.targetValue.toInt() - currentSessions)} remaining"
-          } else {
-            "${habit.targetValue.toInt()} ${habit.targetUnit} daily"
-          }
-        } else {
-          "${habit.category} • ${habit.frequency.displayName}"
-        }
-
         Text(
-          text = subtitleText,
+          text = habit.name,
           style = TextStyle(
-            fontSize = 13.sp,
-            color = InkSecondary
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = textColor,
+            textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None
           )
         )
+
+        if (streakDays > 0) {
+          Spacer(modifier = Modifier.width(8.dp))
+          Text(
+            text = "${streakDays}d",
+            style = TextStyle(
+              fontSize = 13.sp,
+              fontWeight = FontWeight.Bold,
+              color = InkSecondary
+            )
+          )
+        }
       }
 
-      if (isEditMode) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+      Spacer(modifier = Modifier.height(4.dp))
+
+      val subtitleText = if (habit.targetValue > 1f) {
+        if (isCompleted) {
+          "${habit.targetValue.toInt()}/${habit.targetValue.toInt()} sessions completed"
+        } else if (currentSessions > 0) {
+          "$currentSessions/${habit.targetValue.toInt()} sessions • ${(habit.targetValue.toInt() - currentSessions)} remaining"
+        } else {
+          "${habit.targetValue.toInt()} ${habit.targetUnit} daily"
+        }
+      } else {
+        "${habit.category} • ${habit.frequency.displayName}"
+      }
+
+      Text(
+        text = subtitleText,
+        style = TextStyle(
+          fontSize = 13.sp,
+          color = Color(0xFF929292)
+        )
+      )
+    }
+
+    if (isEditMode) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+          modifier = Modifier
+            .size(48.dp)
+            .border(1.2.dp, Color(0xFF292929), CircleShape)
+            .clip(CircleShape)
+            .clickable { onClick() },
+          contentAlignment = Alignment.Center
+        ) {
+          Icon(
+            imageVector = Icons.Default.Edit,
+            contentDescription = "Edit Habit",
+            tint = InkPrimary,
+            modifier = Modifier.size(16.dp)
+          )
+        }
+        if (onDelete != null) {
+          Spacer(modifier = Modifier.width(8.dp))
           Box(
             modifier = Modifier
               .size(48.dp)
-              .border(1.2.dp, CardBorder, CircleShape)
+              .background(InkSecondary.copy(alpha = 0.15f), CircleShape)
               .clip(CircleShape)
-              .bounceClick { onClick() },
+              .clickable { onDelete() },
             contentAlignment = Alignment.Center
           ) {
             Icon(
-              imageVector = Icons.Default.Edit,
-              contentDescription = "Edit Habit",
-              tint = InkPrimary,
-              modifier = Modifier.size(16.dp)
+              imageVector = Icons.Outlined.DeleteOutline,
+              contentDescription = "Delete Habit",
+              tint = InkSecondary,
+              modifier = Modifier.size(18.dp)
             )
-          }
-          if (onDelete != null) {
-            Spacer(modifier = Modifier.width(8.dp))
-            Box(
-              modifier = Modifier
-                .size(48.dp)
-                .background(AccentTerracotta.copy(alpha = 0.15f), CircleShape)
-                .clip(CircleShape)
-                .bounceClick { onDelete() },
-              contentAlignment = Alignment.Center
-            ) {
-              Icon(
-                imageVector = Icons.Outlined.DeleteOutline,
-                contentDescription = "Delete Habit",
-                tint = AccentTerracotta,
-                modifier = Modifier.size(18.dp)
-              )
-            }
           }
         }
-      } else {
-        if (habit.targetValue > 1f && !isCompleted) {
-          // Dedicated liquid-glass multi-session logging button
-          Box(
-            modifier = Modifier
-              .height(48.dp)
-              .background(PillBackgroundDark.copy(alpha = 0.10f), RoundedCornerShape(17.dp))
-              .border(1.2.dp, CardBorder, RoundedCornerShape(17.dp))
-              .clip(RoundedCornerShape(17.dp))
-              .bounceClick { onToggle() }
-              .padding(horizontal = 10.dp, vertical = 6.dp),
-            contentAlignment = Alignment.Center
-          ) {
-            Text(
-              text = "$currentSessions/${habit.targetValue.toInt()} Session",
-              style = TextStyle(
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = InkPrimary
-              )
+      }
+    } else {
+      if (habit.targetValue > 1f && !isCompleted) {
+        // Flat multi-session logging button
+        Box(
+          modifier = Modifier
+            .height(48.dp)
+            .background(InkSecondary.copy(alpha = 0.10f), RoundedCornerShape(17.dp))
+            .border(1.2.dp, Color(0xFF292929), RoundedCornerShape(17.dp))
+            .clip(RoundedCornerShape(17.dp))
+            .clickable { onToggle() }
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+          contentAlignment = Alignment.Center
+        ) {
+          Text(
+            text = "$currentSessions/${habit.targetValue.toInt()} Session",
+            style = TextStyle(
+              fontSize = 12.sp,
+              fontWeight = FontWeight.Bold,
+              color = InkPrimary
             )
-          }
-        } else {
-          GlassCheckbox(
-            checked = isCompleted,
-            contentDescription = "Complete ${habit.name}",
-            onCheckedChange = { onToggle() }
           )
         }
+      } else {
+        GlassCheckbox(
+          checked = isCompleted,
+          contentDescription = "Complete ${habit.name}",
+          onCheckedChange = { onToggle() }
+        )
       }
     }
   }
