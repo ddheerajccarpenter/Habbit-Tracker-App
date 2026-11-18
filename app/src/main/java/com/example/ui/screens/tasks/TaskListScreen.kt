@@ -77,9 +77,8 @@ import com.example.ui.components.GlassCard
 import com.example.ui.components.GlassButton
 import com.example.ui.components.GlassMenu
 import com.example.ui.components.GlassMenuItem
-import com.example.ui.components.SketchCheckbox
-import com.example.ui.components.SketchFilterChip
-import com.example.ui.components.SketchSearchBar
+import com.example.ui.components.GlassInput
+import com.example.ui.components.GlassFilterChip
 import com.example.ui.components.bounceClick
 import com.example.ui.components.staggeredEntrance
 import com.example.ui.components.paperDotBackground
@@ -176,11 +175,13 @@ fun TaskListScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Search Bar
-        SketchSearchBar(
-          query = searchQuery,
-          onQueryChange = { viewModel.setTaskSearchQuery(it) },
+        // Search Bar (glass.md Section 02.7)
+        GlassInput(
+          value = searchQuery,
+          onValueChange = { viewModel.setTaskSearchQuery(it) },
           placeholder = "Search tasks, tags...",
+          isSearch = true,
+          onClear = { viewModel.setTaskSearchQuery("") },
           modifier = Modifier.fillMaxWidth()
         )
 
@@ -200,7 +201,7 @@ fun TaskListScreen(
           horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
           TaskFilter.entries.forEach { filter ->
-            SketchFilterChip(
+            GlassFilterChip(
               label = filter.title,
               isSelected = filter == currentFilter,
               onClick = { viewModel.setTaskFilter(filter) },

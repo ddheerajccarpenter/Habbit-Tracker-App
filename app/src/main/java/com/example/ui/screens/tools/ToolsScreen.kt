@@ -106,9 +106,6 @@ import com.example.ui.components.GlassMenu
 import com.example.ui.components.GlassMenuItem
 import com.example.ui.components.GlassMenuItemData
 import com.example.ui.components.GlassInput
-import com.example.ui.components.SketchFilterChip
-import com.example.ui.components.SketchInputField
-import com.example.ui.components.SketchSearchBar
 import com.example.ui.components.bounceClick
 import com.example.ui.components.staggeredEntrance
 import com.example.ui.components.paperDotBackground
@@ -1095,11 +1092,10 @@ fun ToolInputField(
       ),
       modifier = Modifier.padding(bottom = 4.dp)
     )
-    SketchInputField(
+    GlassInput(
       value = value,
       onValueChange = onValueChange,
       placeholder = "0",
-      backgroundColor = inputTrough,
       keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
       modifier = Modifier.fillMaxWidth()
     )

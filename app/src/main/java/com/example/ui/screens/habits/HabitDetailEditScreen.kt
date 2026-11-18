@@ -77,7 +77,7 @@ import com.example.ui.components.GlassButton
 import com.example.ui.components.GlassButtonVariant
 import com.example.ui.components.GlassSwitch
 import com.example.ui.components.ColorCyclePicker
-import com.example.ui.components.SketchInputField
+import com.example.ui.components.GlassInput
 import com.example.ui.components.bounceClick
 import com.example.ui.components.paperDotBackground
 import com.example.ui.screens.calendar.HabitHistoryGrid
@@ -341,7 +341,7 @@ fun HabitDetailEditScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        SketchInputField(
+        GlassInput(
           value = name,
           onValueChange = {
             name = it
@@ -363,7 +363,7 @@ fun HabitDetailEditScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        SketchInputField(
+        GlassInput(
           value = description,
           onValueChange = { description = it },
           placeholder = "Notes or motivation (e.g. At least 20 pages before bed)",
@@ -768,7 +768,7 @@ fun HabitDetailEditScreen(
 
         if (selectedCategory == "Other") {
           Spacer(modifier = Modifier.height(10.dp))
-          SketchInputField(
+          GlassInput(
             value = customCategoryText,
             onValueChange = { customCategoryText = it },
             placeholder = "Specify other habit category...",

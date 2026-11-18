@@ -72,10 +72,10 @@ import com.example.ui.theme.OklchEmerald
 import com.example.ui.theme.OklchEmeraldSoft
 import com.example.ui.components.DeleteConfirmationDialog
 import com.example.ui.components.LiquidGlassCard
-import com.example.ui.components.SketchCheckbox
+import com.example.ui.components.GlassCheckbox
 import com.example.ui.components.FloatingNavContentBottomPadding
-import com.example.ui.components.SketchFilterChip
-import com.example.ui.components.SketchSearchBar
+import com.example.ui.components.GlassFilterChip
+import com.example.ui.components.GlassInput
 import com.example.ui.components.bounceClick
 import com.example.ui.components.GlassMenu
 import com.example.ui.components.GlassMenuItem
@@ -180,11 +180,13 @@ fun HabitListScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Search Bar
-        SketchSearchBar(
-          query = searchQuery,
-          onQueryChange = { viewModel.setHabitSearchQuery(it) },
+        // Search Bar (glass.md Section 02.7)
+        GlassInput(
+          value = searchQuery,
+          onValueChange = { viewModel.setHabitSearchQuery(it) },
           placeholder = "Search habits...",
+          isSearch = true,
+          onClear = { viewModel.setHabitSearchQuery("") },
           modifier = Modifier.fillMaxWidth()
         )
 
@@ -210,7 +212,7 @@ fun HabitListScreen(
 
           val label = if (filter == HabitListFilter.ALL) "All ($count)" else "${filter.displayName} ($count)"
 
-          SketchFilterChip(
+          GlassFilterChip(
             selected = isSelected,
             onClick = { viewModel.setHabitListFilter(filter) },
             label = label
@@ -666,7 +668,7 @@ fun HabitCardItemWithActions(
             )
           }
         } else {
-          SketchCheckbox(
+          GlassCheckbox(
             checked = isCompleted,
             onCheckedChange = { onToggle() }
           )

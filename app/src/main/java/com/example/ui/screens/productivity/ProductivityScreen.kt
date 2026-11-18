@@ -110,7 +110,6 @@ fun ProductivityScreen(
         clip = subTabCorner > 0.dp
       }
       .paperDotBackground()
-      .windowInsetsPadding(WindowInsets.statusBars)
       .padding(top = 10.dp)
       .horizontalSwipeNavigation(
         onSwipeLeft = {

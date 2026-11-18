@@ -122,8 +122,7 @@ import com.example.ui.components.CircularProgressGauge
 import com.example.ui.components.StreakFlameBadge
 import com.example.ui.components.fluidLensedGlass
 import com.example.ui.components.AppleCircularCheckbox
-import com.example.ui.components.SketchCheckbox
-import com.example.ui.components.SketchProgressBar
+import com.example.ui.components.GlassCheckbox
 import com.example.ui.components.paperDotBackground
 import com.example.ui.theme.AccentOrange
 import com.example.ui.theme.AccentTerracotta
@@ -1428,7 +1427,7 @@ fun TaskGridCard(
             }
           }
         } else {
-          SketchCheckbox(
+          GlassCheckbox(
             checked = task.isCompleted,
             onCheckedChange = { onToggle() },
             sizeDp = 20.dp,
@@ -1554,7 +1553,7 @@ fun HabitGridCard(
               )
             }
           } else {
-            SketchCheckbox(
+            GlassCheckbox(
               checked = isCompleted,
               onCheckedChange = { onToggle() },
               sizeDp = 26.dp,
@@ -1763,7 +1762,7 @@ fun HabitItemCard(
             )
           }
         } else {
-          SketchCheckbox(
+          GlassCheckbox(
             checked = isCompleted,
             contentDescription = "Complete ${habit.name}",
             onCheckedChange = { onToggle() }

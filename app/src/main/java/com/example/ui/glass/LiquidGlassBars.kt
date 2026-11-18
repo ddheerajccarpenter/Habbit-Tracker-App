@@ -10,16 +10,22 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
+import com.example.AppDestination
+import dev.chrisbanes.haze.HazeState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -40,6 +46,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -63,6 +70,7 @@ import com.example.ui.theme.StrongFontFamily
 fun LiquidGlassTopAppBar(
     title: String,
     modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(22.dp),
     onBack: (() -> Unit)? = null,
     backLabel: String = "Back",
     actionIcon: ImageVector? = null,
@@ -79,13 +87,13 @@ fun LiquidGlassTopAppBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(58.dp)
+            .height(56.dp)
             .then(
                 if (hazeState != null) {
                     Modifier.liquidGlass(
                         variant = LiquidGlassVariant.Subtle,
-                        shape = RectangleShape,
-                        borderWidth = 0.5.dp
+                        shape = shape,
+                        borderWidth = 0.75.dp
                     )
                 } else {
                     Modifier.cloudy(radius = 24).background(
@@ -93,35 +101,38 @@ fun LiquidGlassTopAppBar(
                     )
                 }
             )
-            .drawWithCache {
-                // Directional bottom specular rim for top navigation bars
-                val strokePx = 0.75.dp.toPx()
-                val bottomRimBrush = Brush.horizontalGradient(
-                    colors = if (isDark) {
-                        listOf(
-                            Color.White.copy(alpha = 0.08f),
-                            Color.White.copy(alpha = 0.22f),
-                            Color.White.copy(alpha = 0.08f)
+            .then(
+                if (shape == RectangleShape) {
+                    Modifier.drawWithCache {
+                        val strokePx = 0.75.dp.toPx()
+                        val bottomRimBrush = Brush.horizontalGradient(
+                            colors = if (isDark) {
+                                listOf(
+                                    Color.White.copy(alpha = 0.08f),
+                                    Color.White.copy(alpha = 0.22f),
+                                    Color.White.copy(alpha = 0.08f)
+                                )
+                            } else {
+                                listOf(
+                                    Color.White.copy(alpha = 0.20f),
+                                    Color.White.copy(alpha = 0.55f),
+                                    Color.White.copy(alpha = 0.20f)
+                                )
+                            }
                         )
-                    } else {
-                        listOf(
-                            Color.White.copy(alpha = 0.20f),
-                            Color.White.copy(alpha = 0.55f),
-                            Color.White.copy(alpha = 0.20f)
-                        )
+                        onDrawWithContent {
+                            drawContent()
+                            drawLine(
+                                brush = bottomRimBrush,
+                                start = androidx.compose.ui.geometry.Offset(0f, size.height),
+                                end = androidx.compose.ui.geometry.Offset(size.width, size.height),
+                                strokeWidth = strokePx
+                            )
+                        }
                     }
-                )
-                onDrawWithContent {
-                    drawContent()
-                    drawLine(
-                        brush = bottomRimBrush,
-                        start = androidx.compose.ui.geometry.Offset(0f, size.height),
-                        end = androidx.compose.ui.geometry.Offset(size.width, size.height),
-                        strokeWidth = strokePx
-                    )
-                }
-            }
-            .padding(horizontal = 16.dp),
+                } else Modifier
+            )
+            .padding(horizontal = 14.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -141,7 +152,8 @@ fun LiquidGlassTopAppBar(
                         onClick = onBack,
                         contentDescription = backLabel,
                         size = 38.dp,
-                        variant = LiquidGlassVariant.Regular
+                        variant = LiquidGlassVariant.Regular,
+                        modifier = Modifier.testTag("header_back_btn")
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -158,7 +170,7 @@ fun LiquidGlassTopAppBar(
                 text = title,
                 style = TextStyle(
                     fontFamily = SeramondeFontFamily,
-                    fontSize = 24.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = InkPrimary,
                     textAlign = TextAlign.Center
@@ -182,8 +194,11 @@ fun LiquidGlassTopAppBar(
                 } else if (actionText != null && onActionClick != null) {
                     com.example.ui.components.LiquidGlassButton(
                         onClick = onActionClick,
+                        shape = RoundedCornerShape(12.dp),
                         variant = LiquidGlassVariant.Prominent,
-                        modifier = Modifier.height(34.dp)
+                        modifier = Modifier
+                            .height(34.dp)
+                            .then(if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier)
                     ) {
                         Text(
                             text = actionText,
@@ -198,9 +213,10 @@ fun LiquidGlassTopAppBar(
                 } else if (actionIcon != null && onActionClick != null) {
                     com.example.ui.components.LiquidGlassIconButton(
                         onClick = onActionClick,
-                        contentDescription = actionContentDescription,
+                        contentDescription = actionContentDescription ?: "Action",
                         size = 38.dp,
-                        variant = LiquidGlassVariant.Regular
+                        variant = LiquidGlassVariant.Regular,
+                        modifier = if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier
                     ) {
                         Icon(
                             imageVector = actionIcon,
@@ -279,5 +295,78 @@ fun LiquidGlassLinearProgress(
             )
         }
     }
+}
+
+/**
+ * Authentic Apple iOS 26 Liquid Glass Floating Navigation Bar (glass.md Section 02.5 & 03):
+ * 48dp floating glass dock in a 56dp container with navigation bar insets and 8dp bottom padding.
+ * Features live Haze backdrop blur, AGSL RuntimeShader light bending with 10% chromatic dispersion,
+ * razor-sharp 0.75dp specular hairline rim, 440ms traveling specular light sweep beam, 300ms tap bloom flare,
+ * and elevated optical lens pill with dual-spring 120Hz drag kinetics.
+ */
+@Composable
+fun GlassNav(
+    destinations: List<AppDestination> = AppDestination.entries.take(4),
+    selectedTab: Int,
+    onDestinationSelected: (AppDestination) -> Unit,
+    modifier: Modifier = Modifier,
+    hazeState: HazeState? = null,
+    showLabels: Boolean = false,
+    externalPageOffsetProvider: (() -> Float)? = null,
+    externalPageOffset: Float? = null,
+    onDragOffset: ((Float) -> Unit)? = null,
+    onDragReleased: ((Int) -> Unit)? = null
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.navigationBars)
+            .padding(bottom = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        com.example.ui.components.LiquidGlassNavigationDock(
+            destinations = destinations.take(4),
+            selectedTab = selectedTab.coerceIn(0, 3),
+            externalPageOffsetProvider = externalPageOffsetProvider,
+            externalPageOffset = externalPageOffset,
+            onDragOffset = onDragOffset,
+            onDragReleased = onDragReleased,
+            onDestinationSelected = onDestinationSelected,
+            hazeState = hazeState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+    }
+}
+
+/**
+ * Canonical alias for GlassNav matching the LiquidGlass naming system.
+ */
+@Composable
+fun LiquidGlassNav(
+    destinations: List<AppDestination> = AppDestination.entries.take(4),
+    selectedTab: Int,
+    onDestinationSelected: (AppDestination) -> Unit,
+    modifier: Modifier = Modifier,
+    hazeState: HazeState? = null,
+    showLabels: Boolean = false,
+    externalPageOffsetProvider: (() -> Float)? = null,
+    externalPageOffset: Float? = null,
+    onDragOffset: ((Float) -> Unit)? = null,
+    onDragReleased: ((Int) -> Unit)? = null
+) {
+    GlassNav(
+        destinations = destinations,
+        selectedTab = selectedTab,
+        onDestinationSelected = onDestinationSelected,
+        modifier = modifier,
+        hazeState = hazeState,
+        showLabels = showLabels,
+        externalPageOffsetProvider = externalPageOffsetProvider,
+        externalPageOffset = externalPageOffset,
+        onDragOffset = onDragOffset,
+        onDragReleased = onDragReleased
+    )
 }
 

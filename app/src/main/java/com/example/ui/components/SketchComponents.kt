@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.unit.IntOffset
 import com.example.ui.theme.SpecialFontFamily
 import com.example.ui.theme.StrongFontFamily
+import com.example.ui.theme.SeramondeFontFamily
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -1652,39 +1653,49 @@ fun GlassInput(
   placeholder: String = "Search",
   type: String = "search",
   isSearch: Boolean = type == "search",
+  singleLine: Boolean = true,
+  minLines: Int = 1,
+  textStyle: TextStyle? = null,
+  keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
   leadingIcon: (@Composable () -> Unit)? = null,
   trailing: (@Composable () -> Unit)? = null,
   trailingIcon: (@Composable () -> Unit)? = trailing,
   ariaLabel: String? = null,
   enabled: Boolean = true,
+  testTag: String? = null,
   onClear: (() -> Unit)? = null
 ) {
   val activeValue = if (onQueryChange != null) query else value
   val activeChange: (String) -> Unit = onQueryChange ?: onValueChange
   val isDark = LocalAppColors.current.isDark
   var isFocused by remember { mutableStateOf(false) }
+  val resolvedStyle = textStyle ?: TextStyle(
+    fontSize = 15.sp,
+    color = InkPrimary
+  )
 
   Box(
     modifier = modifier
       .fillMaxWidth()
-      .height(48.dp)
+      .defaultMinSize(minHeight = 48.dp)
       .fluidLensedGlass(
         shape = RoundedCornerShape(14.dp),
         elevation = 1.dp,
         borderWidth = if (isFocused) 1.dp else 0.75.dp,
         isElevated = false
       )
-      .padding(horizontal = 14.dp)
+      .padding(horizontal = 14.dp, vertical = if (singleLine) 0.dp else 10.dp)
       .semantics {
         if (ariaLabel != null) {
           contentDescription = ariaLabel
         }
-      },
+      }
+      .then(if (testTag != null) Modifier.testTag(testTag) else Modifier),
     contentAlignment = Alignment.CenterStart
   ) {
     Row(
       modifier = Modifier.fillMaxWidth(),
-      verticalAlignment = Alignment.CenterVertically,
+      verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top,
       horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
       if (leadingIcon != null) {
@@ -1702,22 +1713,18 @@ fun GlassInput(
         if (activeValue.isEmpty()) {
           Text(
             text = placeholder,
-            style = TextStyle(
-              fontSize = 15.sp,
-              color = InkMuted
-            )
+            style = resolvedStyle.copy(color = InkMuted)
           )
         }
         BasicTextField(
           value = activeValue,
           onValueChange = activeChange,
           enabled = enabled,
-          textStyle = TextStyle(
-            fontSize = 15.sp,
-            color = InkPrimary
-          ),
+          textStyle = resolvedStyle,
           cursorBrush = SolidColor(if (isDark) Color.White else Color.Black),
-          singleLine = true,
+          singleLine = singleLine,
+          minLines = minLines,
+          keyboardOptions = keyboardOptions,
           modifier = Modifier
             .fillMaxWidth()
             .onFocusChanged { isFocused = it.isFocused }
@@ -1813,105 +1820,28 @@ fun AppHeader(
   leftContent: (@Composable () -> Unit)? = null,
   rightContent: (@Composable () -> Unit)? = null
 ) {
-  Row(
-    modifier = modifier
-      .fillMaxWidth()
-      .height(56.dp)
-      .padding(vertical = 4.dp),
-    verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.SpaceBetween
-  ) {
-    // 1. Left Action (Back or custom control)
-    Box(
-      modifier = Modifier.widthIn(min = 48.dp),
-      contentAlignment = Alignment.CenterStart
-    ) {
-      if (leftContent != null) {
-        leftContent()
-      } else if (onBack != null) {
-        LiquidGlassIconButton(
-          onClick = onBack,
-          contentDescription = backLabel,
-          size = 38.dp,
-          variant = LiquidGlassVariant.Regular,
-          modifier = Modifier.testTag("header_back_btn")
-        ) {
-          Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = null,
-            tint = InkPrimary,
-            modifier = Modifier.size(19.dp)
-          )
-        }
-      }
-    }
-
-    // 2. Centralized / Standardized Page Title
-    Text(
-      text = title,
-      style = TextStyle(
-        fontFamily = StrongFontFamily,
-        fontSize = 24.sp,
-        fontWeight = FontWeight.Bold,
-        color = InkPrimary
-      ),
-      textAlign = TextAlign.Center,
-      maxLines = 1,
-      modifier = Modifier.weight(1f, fill = false)
-    )
-
-    // 3. Right Action (Primary Action button or contextual control)
-    Box(
-      modifier = Modifier.widthIn(min = 48.dp),
-      contentAlignment = Alignment.CenterEnd
-    ) {
-      if (rightContent != null) {
-        LiquidGlassEffectContainer(spacing = 8.dp) {
-          rightContent()
-        }
-      } else if (actionText != null && onActionClick != null) {
-        LiquidGlassButton(
-          onClick = onActionClick,
-          shape = RoundedCornerShape(10.dp),
-          variant = LiquidGlassVariant.Prominent,
-          modifier = Modifier.height(34.dp).then(if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier)
-        ) {
-          Text(
-            text = actionText,
-            style = TextStyle(
-              fontFamily = StrongFontFamily,
-              fontSize = 12.sp,
-              fontWeight = FontWeight.Bold,
-              color = LocalAppColors.current.oklchPrimary
-            )
-          )
-        }
-      } else if (actionIcon != null && onActionClick != null) {
-        LiquidGlassIconButton(
-          onClick = onActionClick,
-          contentDescription = actionContentDescription ?: "Action",
-          size = 38.dp,
-          variant = LiquidGlassVariant.Regular,
-          modifier = if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier
-        ) {
-          Icon(
-            imageVector = actionIcon,
-            contentDescription = null,
-            tint = InkPrimary,
-            modifier = Modifier.size(19.dp)
-          )
-        }
-      }
-    }
-  }
+  LiquidGlassTopAppBar(
+    title = title,
+    modifier = modifier,
+    shape = RoundedCornerShape(22.dp),
+    onBack = onBack,
+    backLabel = backLabel,
+    actionIcon = actionIcon,
+    actionText = actionText,
+    actionContentDescription = actionContentDescription,
+    onActionClick = onActionClick,
+    actionTestTag = actionTestTag,
+    leftContent = leftContent,
+    rightContent = rightContent
+  )
 }
 
 /**
- * Standardized Liquid Glass Filter Chip across Tasks, Habits, Tools, Calendar.
+ * Standardized Liquid Glass Filter Chip across Tasks, Habits, Tools, Calendar (glass.md).
  * Understated, refined translucent fluid glass stadium pill with hairline rim and crisp text.
  */
 @Composable
-fun SketchFilterChip(
+fun GlassFilterChip(
   label: String,
   selected: Boolean = false,
   isSelected: Boolean = selected,
@@ -1955,6 +1885,28 @@ fun SketchFilterChip(
       )
     )
   }
+}
+
+/**
+ * Backward compatibility alias for GlassFilterChip.
+ */
+@Composable
+fun SketchFilterChip(
+  label: String,
+  selected: Boolean = false,
+  isSelected: Boolean = selected,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  testTag: String? = null
+) {
+  GlassFilterChip(
+    label = label,
+    selected = selected,
+    isSelected = isSelected,
+    onClick = onClick,
+    modifier = modifier,
+    testTag = testTag
+  )
 }
 
 /**
@@ -2039,7 +1991,7 @@ fun AppEmptyState(
 }
 
 @Composable
-fun SketchCheckbox(
+fun GlassCheckbox(
   checked: Boolean,
   onCheckedChange: (Boolean) -> Unit,
   modifier: Modifier = Modifier,
@@ -2069,6 +2021,26 @@ fun SketchCheckbox(
   }
 }
 
+/**
+ * Backward compatibility alias for GlassCheckbox.
+ */
+@Composable
+fun SketchCheckbox(
+  checked: Boolean,
+  onCheckedChange: (Boolean) -> Unit,
+  modifier: Modifier = Modifier,
+  sizeDp: Dp = 24.dp,
+  contentDescription: String = "Completion"
+) {
+  GlassCheckbox(
+    checked = checked,
+    onCheckedChange = onCheckedChange,
+    modifier = modifier,
+    sizeDp = sizeDp,
+    contentDescription = contentDescription
+  )
+}
+
 @Composable
 fun SketchProgressBar(
   progress: Float,
@@ -2082,6 +2054,10 @@ fun SketchProgressBar(
   )
 }
 
+/**
+ * Liquid Glass Input Field (glass.md Section 02.7).
+ * Renders authentic translucent glass trough with specular hairline rim.
+ */
 @Composable
 fun SketchInputField(
   value: String,
@@ -2094,38 +2070,17 @@ fun SketchInputField(
   backgroundColor: Color? = null,
   keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
-  val style = textStyle ?: TextStyle(fontSize = 16.sp, color = InkPrimary)
-  val primaryColor = InkPrimary
-
-  SketchCard(
-    modifier = modifier.fillMaxWidth(),
-    cornerRadius = 10.dp,
-    borderWidth = 0.75.dp,
-    backgroundColor = backgroundColor ?: CardBackground
-  ) {
-    Box(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 14.dp, vertical = 12.dp)
-    ) {
-      if (value.isEmpty()) {
-        Text(
-          text = placeholder,
-          style = style.copy(color = InkMuted)
-        )
-      }
-      BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = singleLine,
-        minLines = minLines,
-        textStyle = style,
-        cursorBrush = SolidColor(primaryColor),
-        keyboardOptions = keyboardOptions,
-        modifier = Modifier.fillMaxWidth().testTag("input_$placeholder")
-      )
-    }
-  }
+  GlassInput(
+    value = value,
+    onValueChange = onValueChange,
+    placeholder = placeholder,
+    modifier = modifier,
+    singleLine = singleLine,
+    minLines = minLines,
+    textStyle = textStyle,
+    keyboardOptions = keyboardOptions,
+    testTag = "input_$placeholder"
+  )
 }
 
 /**

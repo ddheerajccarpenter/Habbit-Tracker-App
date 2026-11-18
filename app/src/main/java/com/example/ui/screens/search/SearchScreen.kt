@@ -66,9 +66,9 @@ import com.example.ui.components.AppEmptyState
 import com.example.ui.components.AppHeader
 import com.example.ui.components.DeleteConfirmationDialog
 import com.example.ui.components.LiquidGlassCard
-import com.example.ui.components.SketchCheckbox
-import com.example.ui.components.SketchFilterChip
-import com.example.ui.components.SketchSearchBar
+import com.example.ui.components.GlassCheckbox
+import com.example.ui.components.GlassFilterChip
+import com.example.ui.components.GlassInput
 import com.example.ui.components.bounceClick
 import com.example.ui.components.sectionEntrance
 import com.example.ui.components.staggeredEntrance
@@ -175,12 +175,14 @@ fun SearchScreen(
         }
       }
 
-      // Top Search Input Box (Standardized & Accessible)
+      // Top Search Input Box (Standardized & Accessible - glass.md Section 02.7)
       item {
-        SketchSearchBar(
-          query = query,
-          onQueryChange = { query = it },
+        GlassInput(
+          value = query,
+          onValueChange = { query = it },
           placeholder = "Search tasks, habits...",
+          isSearch = true,
+          onClear = { query = "" },
           modifier = Modifier.padding(vertical = 8.dp)
         )
 
@@ -202,7 +204,7 @@ fun SearchScreen(
             "Notes" to 3
           ).forEach { (label, index) ->
             val isSelected = selectedFilterTab == index
-            SketchFilterChip(
+            GlassFilterChip(
               selected = isSelected,
               onClick = { selectedFilterTab = index },
               label = label
@@ -611,7 +613,7 @@ fun SearchTaskCard(
           }
         }
       } else {
-        SketchCheckbox(
+        GlassCheckbox(
           checked = task.isCompleted,
           onCheckedChange = { onToggle() }
         )
@@ -726,7 +728,7 @@ fun SearchHabitCard(
           }
         }
       } else {
-        SketchCheckbox(
+        GlassCheckbox(
           checked = isCompleted,
           onCheckedChange = { onToggle() }
         )

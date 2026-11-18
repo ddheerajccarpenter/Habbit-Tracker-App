@@ -82,8 +82,8 @@ import com.example.ui.components.GlassButton
 import com.example.ui.components.GlassButtonVariant
 import com.example.ui.components.GlassSwitch
 import com.example.ui.components.ColorCyclePicker
-import com.example.ui.components.SketchCheckbox
-import com.example.ui.components.SketchInputField
+import com.example.ui.components.GlassCheckbox
+import com.example.ui.components.GlassInput
 import com.example.ui.components.bounceClick
 import com.example.ui.components.paperDotBackground
 import com.example.ui.theme.AccentRed
@@ -364,7 +364,7 @@ fun TaskDetailEditScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        SketchInputField(
+        GlassInput(
           value = title,
           onValueChange = {
             title = it
@@ -386,7 +386,7 @@ fun TaskDetailEditScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        SketchInputField(
+        GlassInput(
           value = notes,
           onValueChange = { notes = it },
           placeholder = "Add notes...",
@@ -536,7 +536,7 @@ fun TaskDetailEditScreen(
 
         if (selectedCategory == "Other") {
           Spacer(modifier = Modifier.height(10.dp))
-          SketchInputField(
+          GlassInput(
             value = customCategoryText,
             onValueChange = { customCategoryText = it },
             placeholder = "Specify other category name...",
@@ -957,7 +957,7 @@ fun TaskDetailEditScreen(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-          SketchInputField(
+          GlassInput(
             value = newSubtaskText,
             onValueChange = { newSubtaskText = it },
             placeholder = "Add a subtask (e.g. Finish numericals)",
@@ -1017,7 +1017,7 @@ fun TaskDetailEditScreen(
                 .weight(1f)
                 .alpha(subtaskAlpha)
             ) {
-              SketchCheckbox(
+              GlassCheckbox(
                 checked = subtask.isCompleted,
                 onCheckedChange = { checked ->
                   subtaskList[index] = subtask.copy(isCompleted = checked)

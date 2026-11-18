@@ -1,16 +1,9 @@
 package com.example.ui.screens.reports
 
 import com.example.ui.theme.StrongFontFamily
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,8 +32,6 @@ import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.ui.platform.LocalContext
 import com.example.util.MonthlyDotMatrixComposable
 import com.example.ui.components.fluidLensedGlass
@@ -56,8 +47,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,8 +62,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.data.service.AiIntelligenceEngine
-import com.example.data.service.AiProductivityInsight
 import com.example.ui.components.AppEmptyState
 import com.example.ui.components.AppHeader
 import com.example.ui.components.BentoHeroCard
@@ -120,10 +107,6 @@ fun ReportsScreen(
     val viewModel: ReportsViewModel = viewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val aiEngine = remember { AiIntelligenceEngine.instance }
-    var isRefreshingAi by remember { mutableStateOf(false) }
-    var showAiAdvisor by rememberSaveable { mutableStateOf(false) }
     val reduceMotion = remember { isReducedMotionEnabled(context) }
     val listState = rememberLazyListState()
 
@@ -142,53 +125,6 @@ fun ReportsScreen(
                     onBack = onBack
                 )
                 Spacer(Modifier.height(10.dp))
-            }
-
-            // Keep optional coaching behind one explicit entry point; report data stays visible first.
-            item {
-                LiquidGlassCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    onClick = { showAiAdvisor = !showAiAdvisor }
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Text(
-                            text = "Advisor",
-                            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = InkPrimary)
-                        )
-                        Spacer(Modifier.weight(1f))
-                        Icon(
-                            imageVector = if (showAiAdvisor) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (showAiAdvisor) "Hide advisor" else "Show advisor",
-                            tint = InkSecondary
-                        )
-                    }
-                }
-                AnimatedVisibility(
-                    visible = showAiAdvisor,
-                    enter = if (reduceMotion) EnterTransition.None else fadeIn(tween(120)) + expandVertically(animationSpec = spring(dampingRatio = 0.82f, stiffness = 420f)),
-                    exit = if (reduceMotion) ExitTransition.None else shrinkVertically(animationSpec = spring(dampingRatio = 0.9f, stiffness = 500f)) + fadeOut(tween(100))
-                ) {
-                    AiProductivitySection(
-                        stats = state.stats,
-                        isRefreshing = isRefreshingAi,
-                        onRefresh = {
-                            coroutineScope.launch {
-                                isRefreshingAi = true
-                                aiEngine.refreshInsights(forceNetwork = true)
-                                isRefreshingAi = false
-                            }
-                        },
-                        onActionSuggestionClick = {
-                            onNavigateToAddTask?.invoke() ?: onBack?.invoke()
-                        }
-                    )
-                }
-                Spacer(Modifier.height(14.dp))
             }
 
             // Period selector - Canonical Liquid Glass Segmented
@@ -514,140 +450,4 @@ private fun EmptyStatsCard() {
         title = "No data yet",
         subtitle = "Complete tasks or habits to generate insights"
     )
-}
-
-@Composable
-private fun AiProductivitySection(
-    stats: ReportStats,
-    isRefreshing: Boolean,
-    onRefresh: () -> Unit,
-    onActionSuggestionClick: (() -> Unit)? = null
-) {
-    val totalItems = stats.tasksTotal + stats.habitsTotal
-    val totalCompleted = stats.tasksCompleted + stats.habitsCompleted
-    val overallRate = if (totalItems > 0) totalCompleted.toFloat() / totalItems else 0f
-    val pct = (overallRate * 100).roundToInt()
-
-    val title: String
-    val message: String
-    val actionSuggestion: String
-
-    if (stats.hasEnoughData) {
-        if (stats.tasksTotal == 0 && stats.habitsTotal > 0) {
-            val habitPct = (stats.habitCompletionRate * 100).roundToInt()
-            title = "Habit completion: $habitPct%"
-            message = "Met ${stats.habitsCompleted} of ${stats.habitsTotal} scheduled targets and logged ${stats.sessionsCompleted} of ${stats.sessionsTotal} sessions during ${stats.periodLabel}. No tasks are scheduled for this period."
-            actionSuggestion = "Add a task"
-        } else if (stats.tasksTotal > 0 && stats.habitsTotal == 0) {
-            title = "Task completion: $pct%"
-            message = "Completed ${stats.tasksCompleted} of ${stats.tasksTotal} scheduled tasks during ${stats.periodLabel}.${if (stats.tasksOverdue > 0) " ${stats.tasksOverdue} are overdue." else ""}"
-            actionSuggestion = "Add a task"
-        } else {
-            title = "Overall completion: $pct%"
-            message = "Completed ${stats.tasksCompleted} of ${stats.tasksTotal} tasks and met ${stats.habitsCompleted} of ${stats.habitsTotal} habit targets during ${stats.periodLabel}.${if (stats.tasksOverdue > 0) " ${stats.tasksOverdue} tasks are overdue." else ""}"
-            actionSuggestion = "Add a task"
-        }
-    } else {
-        title = "No activity recorded"
-        message = "No tasks or habit targets were recorded for ${stats.periodLabel.ifEmpty { "this period" }}."
-        actionSuggestion = "Add a task"
-    }
-
-    val advisorAccent = InkPrimary
-
-    LiquidGlassCard(
-        modifier = Modifier.fillMaxWidth().heroEntrance(delayMs = 40),
-        cornerRadius = 16.dp
-    ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "PERIOD SUMMARY",
-                        style = TextStyle(
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp,
-                            color = advisorAccent
-                        )
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .border(1.dp, CardBorder, CircleShape)
-                        .clip(CircleShape)
-                        .bounceClick { if (!isRefreshing) onRefresh() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isRefreshing) {
-                        CircularProgressIndicator(
-                            strokeWidth = 2.dp,
-                            color = advisorAccent,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh Insights",
-                            tint = InkSecondary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(10.dp))
-
-            Text(
-                text = title,
-                style = TextStyle(
-                    fontFamily = StrongFontFamily,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = InkPrimary
-                )
-            )
-
-            Spacer(Modifier.height(4.dp))
-
-            Text(
-                text = message,
-                style = TextStyle(
-                    fontSize = 13.sp,
-                    color = InkSecondary,
-                    lineHeight = 18.sp
-                )
-            )
-
-            if (actionSuggestion.isNotBlank()) {
-                Spacer(Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    GlassButton(
-                        onClick = { onActionSuggestionClick?.invoke() }
-                    ) {
-                        Text(
-                            text = actionSuggestion,
-                            style = TextStyle(
-                                fontFamily = StrongFontFamily,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = InkPrimary
-                            )
-                        )
-                    }
-
-                }
-            }
-        }
-    }
 }

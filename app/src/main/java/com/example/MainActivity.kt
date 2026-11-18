@@ -157,6 +157,7 @@ import com.example.data.model.AppSettings
 import com.example.data.model.Habit
 import com.example.data.model.Task
 import com.example.ui.components.AnimatedDialogContent
+import com.example.ui.glass.GlassNav
 import com.example.ui.components.CircularProgressGauge
 import com.example.ui.components.LiquidGlassCard
 import com.example.ui.components.ClassicLoadingSpinner
@@ -551,7 +552,9 @@ fun MainApp(
                 HorizontalPager(
                   state = pagerState,
                   userScrollEnabled = true,
-                  modifier = Modifier.fillMaxSize()
+                  modifier = Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.statusBars)
                 ) { tabIndex ->
                   when (destinations[tabIndex]) {
                     AppDestination.TODAY -> {
@@ -598,24 +601,21 @@ fun MainApp(
                 }
               }
 
-              SketchBottomNavigationBar(
+              GlassNav(
                 destinations = destinations,
                 selectedTab = navController.selectedTab,
                 externalPageOffsetProvider = pageOffsetProvider,
-                onDragOffset = null,
                 onDragReleased = { finalSlot ->
                   if (finalSlot in destinations.indices) {
                     navController.switchTab(finalSlot)
                   }
                 },
-                isQuickAddOpen = navController.activeOverlay is AppNavOverlay.QuickCreate,
                 onDestinationSelected = { dest ->
                   val targetIndex = destinations.indexOf(dest)
                   if (targetIndex >= 0) {
                     navController.switchTab(targetIndex)
                   }
                 },
-                onQuickAdd = { navController.navigate(AppNavDestination.QuickCreate) },
                 hazeState = hazeState,
                 modifier = Modifier.align(Alignment.BottomCenter)
               )
@@ -1263,100 +1263,6 @@ private fun interpolateColor(start: Color, end: Color, fraction: Float): Color {
     blue = start.blue + (end.blue - start.blue) * f,
     alpha = start.alpha + (end.alpha - start.alpha) * f
   )
-}
-
-/**
- * Custom Scooped Shape for "06 Center FAB" design format.
- * Gently scoops downward in the center to embrace the elevated Center FAB button.
- */
-class CenterFabScoopedShape(
-  private val cornerRadius: androidx.compose.ui.unit.Dp = 26.dp,
-  private val cradleRadius: androidx.compose.ui.unit.Dp = 33.dp,
-  private val cradleDepth: androidx.compose.ui.unit.Dp = 18.dp
-) : androidx.compose.ui.graphics.Shape {
-  override fun createOutline(
-    size: androidx.compose.ui.geometry.Size,
-    layoutDirection: androidx.compose.ui.unit.LayoutDirection,
-    density: androidx.compose.ui.unit.Density
-  ): androidx.compose.ui.graphics.Outline {
-    val cr = with(density) { cornerRadius.toPx() }
-    val r = with(density) { cradleRadius.toPx() }
-    val depth = with(density) { cradleDepth.toPx() }
-    val w = size.width
-    val h = size.height
-    val cx = w / 2f
-
-    val path = androidx.compose.ui.graphics.Path().apply {
-      moveTo(0f, cr)
-      quadraticTo(0f, 0f, cr, 0f)
-
-      val scoopLeft = cx - r * 1.35f
-      val scoopRight = cx + r * 1.35f
-      lineTo(scoopLeft, 0f)
-
-      // Smooth cradle dip
-      cubicTo(
-        x1 = cx - r * 0.75f, y1 = 0f,
-        x2 = cx - r * 0.50f, y2 = depth,
-        x3 = cx, y3 = depth
-      )
-      cubicTo(
-        x1 = cx + r * 0.50f, y1 = depth,
-        x2 = cx + r * 0.75f, y2 = 0f,
-        x3 = scoopRight, y3 = 0f
-      )
-
-      lineTo(w - cr, 0f)
-      quadraticTo(w, 0f, w, cr)
-
-      lineTo(w, h - cr)
-      quadraticTo(w, h, w - cr, h)
-
-      lineTo(cr, h)
-      quadraticTo(0f, h, 0f, h - cr)
-
-      close()
-    }
-    return androidx.compose.ui.graphics.Outline.Generic(path)
-  }
-}
-
-@Composable
-fun SketchBottomNavigationBar(
-  destinations: List<AppDestination> = AppDestination.entries,
-  selectedTab: Int,
-  externalPageOffsetProvider: (() -> Float)? = null,
-  externalPageOffset: Float? = null,
-  onDragOffset: ((Float) -> Unit)? = null,
-  onDragReleased: ((Int) -> Unit)? = null,
-  isQuickAddOpen: Boolean = false,
-  onDestinationSelected: (AppDestination) -> Unit,
-  onQuickAdd: () -> Unit = {},
-  hazeState: dev.chrisbanes.haze.HazeState? = null,
-  modifier: Modifier = Modifier
-) {
-  Column(
-    modifier = modifier
-      .fillMaxWidth()
-      .windowInsetsPadding(WindowInsets.navigationBars)
-      .padding(bottom = 8.dp),
-    horizontalAlignment = Alignment.CenterHorizontally
-  ) {
-    // Main dock keeps a 48dp glass track and lifts its selected pill while pressed or dragged.
-    LiquidGlassNavigationDock(
-      destinations = destinations.take(4),
-      selectedTab = selectedTab.coerceIn(0, 3),
-      externalPageOffsetProvider = externalPageOffsetProvider,
-      externalPageOffset = externalPageOffset,
-      onDragOffset = onDragOffset,
-      onDragReleased = onDragReleased,
-      onDestinationSelected = onDestinationSelected,
-      hazeState = hazeState,
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp)
-    )
-  }
 }
 
 @Composable
